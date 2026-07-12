@@ -41,7 +41,9 @@ function calculateCostUsd(usage: {
 }
 
 export async function POST(request: Request) {
-  if (process.env.VERCEL_ENV !== "preview") {
+  if (!(["preview", "production"] as const).includes(
+    process.env.VERCEL_ENV as "preview" | "production",
+  )) {
     return new NextResponse(null, { status: 404 });
   }
   if (!hasValidToken(request.headers.get("x-openai-smoke-token"))) {
