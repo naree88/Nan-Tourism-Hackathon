@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+
+# Vercel
+.vercel/
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+.tmp-*
+
+# Test and TypeScript output
+coverage/
+*.tsbuildinfo
+
+# Supabase CLI local state
+supabase/.temp/

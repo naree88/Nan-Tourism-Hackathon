@@ -1,0 +1,1827 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "scope": "Nan, Thailand",
+    "coordinateReferenceSystem": "WGS84 (EPSG:4326)",
+    "boundaryCoordinateOrder": "longitude, latitude",
+    "derivation": {
+      "provinceCentroid": "Arithmetic mean of the 95 Nan subdistrict rows with source coordinates.",
+      "districtCentroids": "Arithmetic mean of source-coordinate subdistrict rows in each district.",
+      "missingSubdistrictCoordinates": "Four source rows have null coordinates; their district centroid is used and coordinateSource is district-centroid."
+    },
+    "statistics": {
+      "boundaryCoordinateCount": 70,
+      "sourceRowCount": 99,
+      "districtCount": 15,
+      "subdistrictCount": 99,
+      "imputedSubdistrictCoordinateCount": 4,
+      "mvpPlaceCount": 3,
+      "placeIndexCount": 118
+    },
+    "sources": [
+      {
+        "id": "apisit-thailand-with-name",
+        "role": "Nan province Polygon boundary",
+        "repository": "https://github.com/apisit/thailand.json",
+        "file": "https://github.com/apisit/thailand.json/blob/master/thailandWithName.json",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/apisit/thailand.json#the-mit-license-mit",
+        "copyright": "Copyright (c) 2012 Apisit Toompakdee"
+      },
+      {
+        "id": "spicydog-output-csv",
+        "role": "Nan province, district, subdistrict, postcode, and coordinates",
+        "repository": "https://github.com/spicydog/thailand-province-district-subdistrict-zipcode-latitude-longitude",
+        "file": "https://github.com/spicydog/thailand-province-district-subdistrict-zipcode-latitude-longitude/blob/master/output.csv",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/spicydog/thailand-province-district-subdistrict-zipcode-latitude-longitude/blob/master/LICENSE"
+      },
+      {
+        "id": "mvp-input",
+        "role": "Product-supplied MVP place coordinates",
+        "license": "Project input"
+      }
+    ]
+  },
+  "boundary": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          101.07408876599197,
+          18.371613107279472
+        ],
+        [
+          100.91945275304215,
+          18.249945787568038
+        ],
+        [
+          100.91025434775997,
+          18.203540350906422
+        ],
+        [
+          100.8809538113693,
+          18.17746959114865
+        ],
+        [
+          100.89149580288893,
+          18.152535712053464
+        ],
+        [
+          100.84260989842801,
+          18.086544908220958
+        ],
+        [
+          100.76054772309891,
+          18.02605764414497
+        ],
+        [
+          100.5765796237506,
+          18.051172390393504
+        ],
+        [
+          100.51523969895288,
+          18.017918606058828
+        ],
+        [
+          100.42211876816657,
+          18.015954902196995
+        ],
+        [
+          100.40547895678844,
+          18.131167507274625
+        ],
+        [
+          100.4573620947848,
+          18.163542792465933
+        ],
+        [
+          100.50325076660954,
+          18.276042384848182
+        ],
+        [
+          100.49673953739966,
+          18.33934601530629
+        ],
+        [
+          100.5372538588785,
+          18.40665456785402
+        ],
+        [
+          100.54128462118831,
+          18.448667506999783
+        ],
+        [
+          100.53306806783701,
+          18.473472194885858
+        ],
+        [
+          100.48898807204193,
+          18.49303172543381
+        ],
+        [
+          100.40981977656139,
+          18.493858546834474
+        ],
+        [
+          100.38625532392405,
+          18.580261541936608
+        ],
+        [
+          100.40568566326277,
+          18.63294566471066
+        ],
+        [
+          100.3785038585662,
+          18.643229274711274
+        ],
+        [
+          100.36672163269719,
+          18.672814031941954
+        ],
+        [
+          100.39741743396735,
+          18.73950246776471
+        ],
+        [
+          100.37400801006157,
+          18.75025116575867
+        ],
+        [
+          100.3525622900176,
+          18.81507925140636
+        ],
+        [
+          100.41963830036724,
+          18.935924587449733
+        ],
+        [
+          100.49999515155503,
+          18.969333401415327
+        ],
+        [
+          100.4951892437885,
+          18.990417385353993
+        ],
+        [
+          100.45994591717027,
+          19.000313421727014
+        ],
+        [
+          100.47844607962281,
+          19.05067210543328
+        ],
+        [
+          100.5706368353217,
+          19.028528754298605
+        ],
+        [
+          100.55198164323821,
+          19.061265773796435
+        ],
+        [
+          100.5631437523823,
+          19.090514635142256
+        ],
+        [
+          100.63099490818843,
+          19.130072944011204
+        ],
+        [
+          100.59544152230842,
+          19.250091457754507
+        ],
+        [
+          100.60489830910967,
+          19.32977651627317
+        ],
+        [
+          100.57074018810914,
+          19.349103501925043
+        ],
+        [
+          100.5357035661666,
+          19.34344493343687
+        ],
+        [
+          100.51368940624104,
+          19.374166572229512
+        ],
+        [
+          100.51441287575364,
+          19.39845449527874
+        ],
+        [
+          100.59032555528017,
+          19.476201687457888
+        ],
+        [
+          100.57475787793692,
+          19.508347404254607
+        ],
+        [
+          100.6070162360001,
+          19.540927226000093
+        ],
+        [
+          100.63326786300013,
+          19.542167460000115
+        ],
+        [
+          100.75300215700003,
+          19.48242950400001
+        ],
+        [
+          100.87981612100009,
+          19.613584290000034
+        ],
+        [
+          101.00254764900012,
+          19.610612895000116
+        ],
+        [
+          101.12465905700003,
+          19.56511179600008
+        ],
+        [
+          101.20796146700013,
+          19.589554749000115
+        ],
+        [
+          101.25105961100007,
+          19.560305888000073
+        ],
+        [
+          101.25173140500004,
+          19.494444275000063
+        ],
+        [
+          101.19287194800006,
+          19.452793071000144
+        ],
+        [
+          101.17235640500007,
+          19.376389465000102
+        ],
+        [
+          101.17845422400012,
+          19.34662384100011
+        ],
+        [
+          101.21126875800013,
+          19.326366679000103
+        ],
+        [
+          101.23571171100008,
+          19.128110047000035
+        ],
+        [
+          101.31787723800011,
+          19.050130311000146
+        ],
+        [
+          101.32640385000013,
+          19.02054555300009
+        ],
+        [
+          101.28392582300012,
+          18.981478170000088
+        ],
+        [
+          101.2249113370001,
+          18.874766337000096
+        ],
+        [
+          101.2286320400001,
+          18.795623881000097
+        ],
+        [
+          101.20584273300011,
+          18.730072327000073
+        ],
+        [
+          101.23472985900003,
+          18.658448791000126
+        ],
+        [
+          101.16088423700006,
+          18.599796041000076
+        ],
+        [
+          101.15535485900006,
+          18.556723734000087
+        ],
+        [
+          101.07789188700013,
+          18.510421651000087
+        ],
+        [
+          101.03562056500004,
+          18.447841492000094
+        ],
+        [
+          101.0370158290001,
+          18.410453593000057
+        ],
+        [
+          101.07408876599197,
+          18.371613107279472
+        ]
+      ]
+    ]
+  },
+  "places": [
+    {
+      "id": "mvp:nan-nakhon-airport",
+      "kind": "mvp-place",
+      "source": "mvp-input",
+      "coordinateSource": "mvp-input",
+      "label": "ท่าอากาศยานน่านนคร",
+      "province": "น่าน",
+      "lat": 18.803239140325637,
+      "lng": 100.78504410929662
+    },
+    {
+      "id": "mvp:wat-phumin",
+      "kind": "mvp-place",
+      "source": "mvp-input",
+      "coordinateSource": "mvp-input",
+      "label": "วัดภูมินทร์",
+      "province": "น่าน",
+      "lat": 18.775629994889727,
+      "lng": 100.77132600164254
+    },
+    {
+      "id": "mvp:wat-phrathat-chae-haeng",
+      "kind": "mvp-place",
+      "source": "mvp-input",
+      "coordinateSource": "mvp-input",
+      "label": "วัดพระธาตุแช่แห้ง",
+      "province": "น่าน",
+      "lat": 18.759220118272026,
+      "lng": 100.792028423497
+    },
+    {
+      "id": "province:น่าน",
+      "kind": "province",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "province-centroid",
+      "label": "จังหวัดน่าน",
+      "province": "น่าน",
+      "lat": 18.876368,
+      "lng": 100.811453
+    },
+    {
+      "id": "district:เมืองน่าน",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอเมืองน่าน",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "lat": 18.810889,
+      "lng": 100.708556
+    },
+    {
+      "id": "district:แม่จริม",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอแม่จริม",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "lat": 18.6998,
+      "lng": 101.0126
+    },
+    {
+      "id": "district:บ้านหลวง",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอบ้านหลวง",
+      "province": "น่าน",
+      "district": "บ้านหลวง",
+      "lat": 18.849,
+      "lng": 100.43575
+    },
+    {
+      "id": "district:นาน้อย",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอนาน้อย",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "lat": 18.315857,
+      "lng": 100.692429
+    },
+    {
+      "id": "district:ปัว",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอปัว",
+      "province": "น่าน",
+      "district": "ปัว",
+      "lat": 19.174091,
+      "lng": 100.953545
+    },
+    {
+      "id": "district:ท่าวังผา",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอท่าวังผา",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "lat": 19.107,
+      "lng": 100.796111
+    },
+    {
+      "id": "district:เวียงสา",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอเวียงสา",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "lat": 18.580588,
+      "lng": 100.741941
+    },
+    {
+      "id": "district:ทุ่งช้าง",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอทุ่งช้าง",
+      "province": "น่าน",
+      "district": "ทุ่งช้าง",
+      "lat": 19.4715,
+      "lng": 100.86725
+    },
+    {
+      "id": "district:เชียงกลาง",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอเชียงกลาง",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "lat": 19.292667,
+      "lng": 100.886
+    },
+    {
+      "id": "district:นาหมื่น",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอนาหมื่น",
+      "province": "น่าน",
+      "district": "นาหมื่น",
+      "lat": 18.14925,
+      "lng": 100.6095
+    },
+    {
+      "id": "district:สันติสุข",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอสันติสุข",
+      "province": "น่าน",
+      "district": "สันติสุข",
+      "lat": 18.918,
+      "lng": 100.945
+    },
+    {
+      "id": "district:บ่อเกลือ",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอบ่อเกลือ",
+      "province": "น่าน",
+      "district": "บ่อเกลือ",
+      "lat": 19.15425,
+      "lng": 101.17625
+    },
+    {
+      "id": "district:สองแคว",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอสองแคว",
+      "province": "น่าน",
+      "district": "สองแคว",
+      "lat": 19.395,
+      "lng": 100.654
+    },
+    {
+      "id": "district:ภูเพียง",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอภูเพียง",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "lat": 18.757,
+      "lng": 100.841714
+    },
+    {
+      "id": "district:เฉลิมพระเกียรติ",
+      "kind": "district",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "อำเภอเฉลิมพระเกียรติ",
+      "province": "น่าน",
+      "district": "เฉลิมพระเกียรติ",
+      "lat": 19.5045,
+      "lng": 101.087
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:ในเวียง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลในเวียง",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "ในเวียง",
+      "zipcode": "55000",
+      "lat": 18.793,
+      "lng": 100.786
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:บ่อ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ่อ",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "บ่อ",
+      "zipcode": "55000",
+      "lat": 18.97,
+      "lng": 100.721
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:ผาสิงห์",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลผาสิงห์",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "ผาสิงห์",
+      "zipcode": "55000",
+      "lat": 18.85,
+      "lng": 100.749
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:ไชยสถาน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลไชยสถาน",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "ไชยสถาน",
+      "zipcode": "55000",
+      "lat": 18.783,
+      "lng": 100.731
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:ถืมตอง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลถืมตอง",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "ถืมตอง",
+      "zipcode": "55000",
+      "lat": 18.797,
+      "lng": 100.712
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:เรือง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเรือง",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "เรือง",
+      "zipcode": "55000",
+      "lat": 18.783,
+      "lng": 100.615
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:นาซาว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "ตำบลนาซาว",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "นาซาว",
+      "zipcode": "55000",
+      "lat": 18.810889,
+      "lng": 100.708556
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:ดู่ใต้",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลดู่ใต้",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "ดู่ใต้",
+      "zipcode": "55000",
+      "lat": 18.724,
+      "lng": 100.739
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:กองควาย",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลกองควาย",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "กองควาย",
+      "zipcode": "55000",
+      "lat": 18.686,
+      "lng": 100.732
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:บ่อสวก",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "ตำบลบ่อสวก",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "บ่อสวก",
+      "zipcode": "55000",
+      "lat": 18.810889,
+      "lng": 100.708556
+    },
+    {
+      "id": "subdistrict:เมืองน่าน:สะเนียน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสะเนียน",
+      "province": "น่าน",
+      "district": "เมืองน่าน",
+      "subdistrict": "สะเนียน",
+      "zipcode": "55000",
+      "lat": 18.912,
+      "lng": 100.592
+    },
+    {
+      "id": "subdistrict:แม่จริม:หนองแดง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลหนองแดง",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "subdistrict": "หนองแดง",
+      "zipcode": "55170",
+      "lat": 18.736,
+      "lng": 101.025
+    },
+    {
+      "id": "subdistrict:แม่จริม:หมอเมือง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลหมอเมือง",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "subdistrict": "หมอเมือง",
+      "zipcode": "55170",
+      "lat": 18.687,
+      "lng": 100.975
+    },
+    {
+      "id": "subdistrict:แม่จริม:น้ำพาง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำพาง",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "subdistrict": "น้ำพาง",
+      "zipcode": "55170",
+      "lat": 18.611,
+      "lng": 101.057
+    },
+    {
+      "id": "subdistrict:แม่จริม:น้ำปาย",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำปาย",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "subdistrict": "น้ำปาย",
+      "zipcode": "55170",
+      "lat": 18.641,
+      "lng": 100.961
+    },
+    {
+      "id": "subdistrict:แม่จริม:แม่จริม",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแม่จริม",
+      "province": "น่าน",
+      "district": "แม่จริม",
+      "subdistrict": "แม่จริม",
+      "zipcode": "55170",
+      "lat": 18.824,
+      "lng": 101.045
+    },
+    {
+      "id": "subdistrict:บ้านหลวง:บ้านฟ้า",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ้านฟ้า",
+      "province": "น่าน",
+      "district": "บ้านหลวง",
+      "subdistrict": "บ้านฟ้า",
+      "zipcode": "55190",
+      "lat": 18.782,
+      "lng": 100.429
+    },
+    {
+      "id": "subdistrict:บ้านหลวง:ป่าคาหลวง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลป่าคาหลวง",
+      "province": "น่าน",
+      "district": "บ้านหลวง",
+      "subdistrict": "ป่าคาหลวง",
+      "zipcode": "55190",
+      "lat": 18.858,
+      "lng": 100.405
+    },
+    {
+      "id": "subdistrict:บ้านหลวง:สวด",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสวด",
+      "province": "น่าน",
+      "district": "บ้านหลวง",
+      "subdistrict": "สวด",
+      "zipcode": "55190",
+      "lat": 18.849,
+      "lng": 100.484
+    },
+    {
+      "id": "subdistrict:บ้านหลวง:บ้านพี้",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ้านพี้",
+      "province": "น่าน",
+      "district": "บ้านหลวง",
+      "subdistrict": "บ้านพี้",
+      "zipcode": "55190",
+      "lat": 18.907,
+      "lng": 100.425
+    },
+    {
+      "id": "subdistrict:นาน้อย:นาน้อย",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลนาน้อย",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "นาน้อย",
+      "zipcode": "55150",
+      "lat": 18.313,
+      "lng": 100.681
+    },
+    {
+      "id": "subdistrict:นาน้อย:เชียงของ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเชียงของ",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "เชียงของ",
+      "zipcode": "55150",
+      "lat": 18.273,
+      "lng": 100.884
+    },
+    {
+      "id": "subdistrict:นาน้อย:ศรีษะเกษ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลศรีษะเกษ",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "ศรีษะเกษ",
+      "zipcode": "55150",
+      "lat": 18.369,
+      "lng": 100.771
+    },
+    {
+      "id": "subdistrict:นาน้อย:สถาน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสถาน",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "สถาน",
+      "zipcode": "55150",
+      "lat": 18.236,
+      "lng": 100.745
+    },
+    {
+      "id": "subdistrict:นาน้อย:สันทะ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสันทะ",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "สันทะ",
+      "zipcode": "55150",
+      "lat": 18.276,
+      "lng": 100.567
+    },
+    {
+      "id": "subdistrict:นาน้อย:บัวใหญ่",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบัวใหญ่",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "บัวใหญ่",
+      "zipcode": "55150",
+      "lat": 18.35,
+      "lng": 100.57
+    },
+    {
+      "id": "subdistrict:นาน้อย:น้ำตก",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำตก",
+      "province": "น่าน",
+      "district": "นาน้อย",
+      "subdistrict": "น้ำตก",
+      "zipcode": "55150",
+      "lat": 18.394,
+      "lng": 100.629
+    },
+    {
+      "id": "subdistrict:ปัว:ปัว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลปัว",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ปัว",
+      "zipcode": "55120",
+      "lat": 19.168,
+      "lng": 100.903
+    },
+    {
+      "id": "subdistrict:ปัว:แงง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแงง",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "แงง",
+      "zipcode": "55120",
+      "lat": 19.197,
+      "lng": 100.849
+    },
+    {
+      "id": "subdistrict:ปัว:สถาน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสถาน",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "สถาน",
+      "zipcode": "55120",
+      "lat": 19.224,
+      "lng": 100.951
+    },
+    {
+      "id": "subdistrict:ปัว:ศิลาแลง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลศิลาแลง",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ศิลาแลง",
+      "zipcode": "55120",
+      "lat": 19.148,
+      "lng": 100.967
+    },
+    {
+      "id": "subdistrict:ปัว:ศิลาเพชร",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลศิลาเพชร",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ศิลาเพชร",
+      "zipcode": "55120",
+      "lat": 19.097,
+      "lng": 100.957
+    },
+    {
+      "id": "subdistrict:ปัว:อวน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลอวน",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "อวน",
+      "zipcode": "55120",
+      "lat": 19.029,
+      "lng": 100.998
+    },
+    {
+      "id": "subdistrict:ปัว:ไชยวัฒนา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลไชยวัฒนา",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ไชยวัฒนา",
+      "zipcode": "55120",
+      "lat": 19.222,
+      "lng": 100.895
+    },
+    {
+      "id": "subdistrict:ปัว:เจดีย์ชัย",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "ตำบลเจดีย์ชัย",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "เจดีย์ชัย",
+      "zipcode": "55120",
+      "lat": 19.174091,
+      "lng": 100.953545
+    },
+    {
+      "id": "subdistrict:ปัว:ภูคา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลภูคา",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ภูคา",
+      "zipcode": "55120",
+      "lat": 19.254,
+      "lng": 101.091
+    },
+    {
+      "id": "subdistrict:ปัว:สกาด",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลสกาด",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "สกาด",
+      "zipcode": "55120",
+      "lat": 19.27,
+      "lng": 101.031
+    },
+    {
+      "id": "subdistrict:ปัว:ป่ากลาง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลป่ากลาง",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "ป่ากลาง",
+      "zipcode": "55120",
+      "lat": 19.13,
+      "lng": 100.9
+    },
+    {
+      "id": "subdistrict:ปัว:วรนคร",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลวรนคร",
+      "province": "น่าน",
+      "district": "ปัว",
+      "subdistrict": "วรนคร",
+      "zipcode": "55120",
+      "lat": 19.176,
+      "lng": 100.947
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ริม",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลริม",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ริม",
+      "zipcode": "55140",
+      "lat": 19.119,
+      "lng": 100.798
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ป่าคา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลป่าคา",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ป่าคา",
+      "zipcode": "55140",
+      "lat": 19.107,
+      "lng": 100.665
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ผาตอ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลผาตอ",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ผาตอ",
+      "zipcode": "55140",
+      "lat": 19.214,
+      "lng": 100.774
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ยม",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลยม",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ยม",
+      "zipcode": "55140",
+      "lat": 19.061,
+      "lng": 100.926
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ตาลชุม",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลตาลชุม",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ตาลชุม",
+      "zipcode": "55140",
+      "lat": 19.022,
+      "lng": 100.829
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ศรีภูมิ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลศรีภูมิ",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ศรีภูมิ",
+      "zipcode": "55140",
+      "lat": 19.069,
+      "lng": 100.726
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:จอมพระ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลจอมพระ",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "จอมพระ",
+      "zipcode": "55140",
+      "lat": 19.103,
+      "lng": 100.865
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:แสนทอง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแสนทอง",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "แสนทอง",
+      "zipcode": "55140",
+      "lat": 19.14,
+      "lng": 100.751
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ท่าวังผา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลท่าวังผา",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ท่าวังผา",
+      "zipcode": "55140",
+      "lat": 19.128,
+      "lng": 100.831
+    },
+    {
+      "id": "subdistrict:ท่าวังผา:ผาทอง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "district-centroid",
+      "label": "ตำบลผาทอง",
+      "province": "น่าน",
+      "district": "ท่าวังผา",
+      "subdistrict": "ผาทอง",
+      "zipcode": "55140",
+      "lat": 19.107,
+      "lng": 100.796111
+    },
+    {
+      "id": "subdistrict:เวียงสา:กลางเวียง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลกลางเวียง",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "กลางเวียง",
+      "zipcode": "55110",
+      "lat": 18.577,
+      "lng": 100.74
+    },
+    {
+      "id": "subdistrict:เวียงสา:ขึ่ง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลขึ่ง",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ขึ่ง",
+      "zipcode": "55110",
+      "lat": 18.53,
+      "lng": 100.834
+    },
+    {
+      "id": "subdistrict:เวียงสา:ไหล่น่าน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลไหล่น่าน",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ไหล่น่าน",
+      "zipcode": "55110",
+      "lat": 18.59,
+      "lng": 100.93
+    },
+    {
+      "id": "subdistrict:เวียงสา:ตาลชุม",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลตาลชุม",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ตาลชุม",
+      "zipcode": "55110",
+      "lat": 18.637,
+      "lng": 100.783
+    },
+    {
+      "id": "subdistrict:เวียงสา:นาเหลือง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลนาเหลือง",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "นาเหลือง",
+      "zipcode": "55110",
+      "lat": 18.679,
+      "lng": 100.837
+    },
+    {
+      "id": "subdistrict:เวียงสา:ส้าน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลส้าน",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ส้าน",
+      "zipcode": "55110",
+      "lat": 18.464,
+      "lng": 100.729
+    },
+    {
+      "id": "subdistrict:เวียงสา:น้ำมวบ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำมวบ",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "น้ำมวบ",
+      "zipcode": "55110",
+      "lat": 18.444,
+      "lng": 100.94
+    },
+    {
+      "id": "subdistrict:เวียงสา:น้ำปั้ว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำปั้ว",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "น้ำปั้ว",
+      "zipcode": "55110",
+      "lat": 18.639,
+      "lng": 100.725
+    },
+    {
+      "id": "subdistrict:เวียงสา:ยาบหัวนา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลยาบหัวนา",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ยาบหัวนา",
+      "zipcode": "55110",
+      "lat": 18.611,
+      "lng": 100.471
+    },
+    {
+      "id": "subdistrict:เวียงสา:ปงสนุก",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลปงสนุก",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ปงสนุก",
+      "zipcode": "55110",
+      "lat": 18.6,
+      "lng": 100.648
+    },
+    {
+      "id": "subdistrict:เวียงสา:อ่ายนาไลย",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลอ่ายนาไลย",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "อ่ายนาไลย",
+      "zipcode": "55110",
+      "lat": 18.514,
+      "lng": 100.541
+    },
+    {
+      "id": "subdistrict:เวียงสา:ส้านนาหนองใหม่",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลส้านนาหนองใหม่",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ส้านนาหนองใหม่",
+      "zipcode": "55110",
+      "lat": 18.531,
+      "lng": 100.996
+    },
+    {
+      "id": "subdistrict:เวียงสา:แม่ขะนิง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแม่ขะนิง",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "แม่ขะนิง",
+      "zipcode": "55110",
+      "lat": 18.718,
+      "lng": 100.552
+    },
+    {
+      "id": "subdistrict:เวียงสา:แม่สาคร",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแม่สาคร",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "แม่สาคร",
+      "zipcode": "55110",
+      "lat": 18.474,
+      "lng": 100.637
+    },
+    {
+      "id": "subdistrict:เวียงสา:จอมจันทร์",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลจอมจันทร์",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "จอมจันทร์",
+      "zipcode": "55110",
+      "lat": 18.637,
+      "lng": 100.896
+    },
+    {
+      "id": "subdistrict:เวียงสา:แม่สา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลแม่สา",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "แม่สา",
+      "zipcode": "55110",
+      "lat": 18.564,
+      "lng": 100.66
+    },
+    {
+      "id": "subdistrict:เวียงสา:ทุ่งศรีทอง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลทุ่งศรีทอง",
+      "province": "น่าน",
+      "district": "เวียงสา",
+      "subdistrict": "ทุ่งศรีทอง",
+      "zipcode": "55110",
+      "lat": 18.661,
+      "lng": 100.694
+    },
+    {
+      "id": "subdistrict:ทุ่งช้าง:ปอน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลปอน",
+      "province": "น่าน",
+      "district": "ทุ่งช้าง",
+      "subdistrict": "ปอน",
+      "zipcode": "55130",
+      "lat": 19.535,
+      "lng": 100.975
+    },
+    {
+      "id": "subdistrict:ทุ่งช้าง:งอบ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลงอบ",
+      "province": "น่าน",
+      "district": "ทุ่งช้าง",
+      "subdistrict": "งอบ",
+      "zipcode": "55130",
+      "lat": 19.514,
+      "lng": 100.849
+    },
+    {
+      "id": "subdistrict:ทุ่งช้าง:และ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลและ",
+      "province": "น่าน",
+      "district": "ทุ่งช้าง",
+      "subdistrict": "และ",
+      "zipcode": "55130",
+      "lat": 19.447,
+      "lng": 100.811
+    },
+    {
+      "id": "subdistrict:ทุ่งช้าง:ทุ่งช้าง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลทุ่งช้าง",
+      "province": "น่าน",
+      "district": "ทุ่งช้าง",
+      "subdistrict": "ทุ่งช้าง",
+      "zipcode": "55130",
+      "lat": 19.39,
+      "lng": 100.834
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:เชียงกลาง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเชียงกลาง",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "เชียงกลาง",
+      "zipcode": "55160",
+      "lat": 19.32,
+      "lng": 100.97
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:เปือ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเปือ",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "เปือ",
+      "zipcode": "55160",
+      "lat": 19.324,
+      "lng": 100.843
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:เชียงคาน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเชียงคาน",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "เชียงคาน",
+      "zipcode": "55160",
+      "lat": 19.246,
+      "lng": 100.855
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:พระธาตุ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลพระธาตุ",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "พระธาตุ",
+      "zipcode": "55160",
+      "lat": 19.338,
+      "lng": 100.925
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:พญาแก้ว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลพญาแก้ว",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "พญาแก้ว",
+      "zipcode": "55160",
+      "lat": 19.27,
+      "lng": 100.909
+    },
+    {
+      "id": "subdistrict:เชียงกลาง:พระพุทธบาท",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลพระพุทธบาท",
+      "province": "น่าน",
+      "district": "เชียงกลาง",
+      "subdistrict": "พระพุทธบาท",
+      "zipcode": "55160",
+      "lat": 19.258,
+      "lng": 100.814
+    },
+    {
+      "id": "subdistrict:นาหมื่น:นาทะนุง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลนาทะนุง",
+      "province": "น่าน",
+      "district": "นาหมื่น",
+      "subdistrict": "นาทะนุง",
+      "zipcode": "55180",
+      "lat": 18.117,
+      "lng": 100.615
+    },
+    {
+      "id": "subdistrict:นาหมื่น:บ่อแก้ว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ่อแก้ว",
+      "province": "น่าน",
+      "district": "นาหมื่น",
+      "subdistrict": "บ่อแก้ว",
+      "zipcode": "55180",
+      "lat": 18.139,
+      "lng": 100.832
+    },
+    {
+      "id": "subdistrict:นาหมื่น:เมืองลี",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเมืองลี",
+      "province": "น่าน",
+      "district": "นาหมื่น",
+      "subdistrict": "เมืองลี",
+      "zipcode": "55180",
+      "lat": 18.226,
+      "lng": 100.505
+    },
+    {
+      "id": "subdistrict:นาหมื่น:ปิงหลวง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลปิงหลวง",
+      "province": "น่าน",
+      "district": "นาหมื่น",
+      "subdistrict": "ปิงหลวง",
+      "zipcode": "55180",
+      "lat": 18.115,
+      "lng": 100.486
+    },
+    {
+      "id": "subdistrict:สันติสุข:ดู่พงษ์",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลดู่พงษ์",
+      "province": "น่าน",
+      "district": "สันติสุข",
+      "subdistrict": "ดู่พงษ์",
+      "zipcode": "55210",
+      "lat": 18.898,
+      "lng": 100.902
+    },
+    {
+      "id": "subdistrict:สันติสุข:ป่าแลวหลวง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลป่าแลวหลวง",
+      "province": "น่าน",
+      "district": "สันติสุข",
+      "subdistrict": "ป่าแลวหลวง",
+      "zipcode": "55210",
+      "lat": 18.957,
+      "lng": 100.95
+    },
+    {
+      "id": "subdistrict:สันติสุข:พงษ์",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลพงษ์",
+      "province": "น่าน",
+      "district": "สันติสุข",
+      "subdistrict": "พงษ์",
+      "zipcode": "55210",
+      "lat": 18.899,
+      "lng": 100.983
+    },
+    {
+      "id": "subdistrict:บ่อเกลือ:บ่อเกลือเหนือ",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ่อเกลือเหนือ",
+      "province": "น่าน",
+      "district": "บ่อเกลือ",
+      "subdistrict": "บ่อเกลือเหนือ",
+      "zipcode": "55220",
+      "lat": 19.297,
+      "lng": 101.176
+    },
+    {
+      "id": "subdistrict:บ่อเกลือ:บ่อเกลือใต้",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลบ่อเกลือใต้",
+      "province": "น่าน",
+      "district": "บ่อเกลือ",
+      "subdistrict": "บ่อเกลือใต้",
+      "zipcode": "55220",
+      "lat": 19.127,
+      "lng": 101.13
+    },
+    {
+      "id": "subdistrict:บ่อเกลือ:ภูฟ้า",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลภูฟ้า",
+      "province": "น่าน",
+      "district": "บ่อเกลือ",
+      "subdistrict": "ภูฟ้า",
+      "zipcode": "55220",
+      "lat": 18.973,
+      "lng": 101.201
+    },
+    {
+      "id": "subdistrict:บ่อเกลือ:ดงพญา",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลดงพญา",
+      "province": "น่าน",
+      "district": "บ่อเกลือ",
+      "subdistrict": "ดงพญา",
+      "zipcode": "55220",
+      "lat": 19.22,
+      "lng": 101.198
+    },
+    {
+      "id": "subdistrict:สองแคว:นาไร่หลวง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลนาไร่หลวง",
+      "province": "น่าน",
+      "district": "สองแคว",
+      "subdistrict": "นาไร่หลวง",
+      "zipcode": "55160",
+      "lat": 19.339,
+      "lng": 100.704
+    },
+    {
+      "id": "subdistrict:สองแคว:ชนแดน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลชนแดน",
+      "province": "น่าน",
+      "district": "สองแคว",
+      "subdistrict": "ชนแดน",
+      "zipcode": "55160",
+      "lat": 19.462,
+      "lng": 100.691
+    },
+    {
+      "id": "subdistrict:สองแคว:ยอด",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลยอด",
+      "province": "น่าน",
+      "district": "สองแคว",
+      "subdistrict": "ยอด",
+      "zipcode": "55160",
+      "lat": 19.384,
+      "lng": 100.567
+    },
+    {
+      "id": "subdistrict:ภูเพียง:ม่วงตึ๊ด",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลม่วงตึ๊ด",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "ม่วงตึ๊ด",
+      "zipcode": "55000",
+      "lat": 18.756,
+      "lng": 100.816
+    },
+    {
+      "id": "subdistrict:ภูเพียง:นาปัง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลนาปัง",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "นาปัง",
+      "zipcode": "55000",
+      "lat": 18.696,
+      "lng": 100.801
+    },
+    {
+      "id": "subdistrict:ภูเพียง:น้ำแก่น",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำแก่น",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "น้ำแก่น",
+      "zipcode": "55000",
+      "lat": 18.698,
+      "lng": 100.88
+    },
+    {
+      "id": "subdistrict:ภูเพียง:น้ำเกี๋ยน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลน้ำเกี๋ยน",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "น้ำเกี๋ยน",
+      "zipcode": "55000",
+      "lat": 18.737,
+      "lng": 100.841
+    },
+    {
+      "id": "subdistrict:ภูเพียง:เมืองจัง",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลเมืองจัง",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "เมืองจัง",
+      "zipcode": "55000",
+      "lat": 18.878,
+      "lng": 100.83
+    },
+    {
+      "id": "subdistrict:ภูเพียง:ท่าน้าว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลท่าน้าว",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "ท่าน้าว",
+      "zipcode": "55000",
+      "lat": 18.731,
+      "lng": 100.791
+    },
+    {
+      "id": "subdistrict:ภูเพียง:ฝายแก้ว",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลฝายแก้ว",
+      "province": "น่าน",
+      "district": "ภูเพียง",
+      "subdistrict": "ฝายแก้ว",
+      "zipcode": "55000",
+      "lat": 18.803,
+      "lng": 100.933
+    },
+    {
+      "id": "subdistrict:เฉลิมพระเกียรติ:ห้วยโก๋น",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลห้วยโก๋น",
+      "province": "น่าน",
+      "district": "เฉลิมพระเกียรติ",
+      "subdistrict": "ห้วยโก๋น",
+      "zipcode": "55130",
+      "lat": 19.559,
+      "lng": 101.046
+    },
+    {
+      "id": "subdistrict:เฉลิมพระเกียรติ:ขุนน่าน",
+      "kind": "subdistrict",
+      "source": "spicydog-output-csv",
+      "coordinateSource": "source",
+      "label": "ตำบลขุนน่าน",
+      "province": "น่าน",
+      "district": "เฉลิมพระเกียรติ",
+      "subdistrict": "ขุนน่าน",
+      "zipcode": "55130",
+      "lat": 19.45,
+      "lng": 101.128
+    }
+  ]
+}
