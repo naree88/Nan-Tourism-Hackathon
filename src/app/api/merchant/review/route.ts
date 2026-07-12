@@ -197,7 +197,7 @@ export async function POST(request: Request) {
 
     const admin = createSupabaseAdminClient();
     if (!admin) {
-      throw new ReviewRouteError("ระบบเผยแพร่ยังไม่ได้ตั้งค่า SUPABASE_SERVICE_ROLE_KEY", 503);
+      throw new ReviewRouteError("ระบบเผยแพร่ยังไม่ได้ตั้งค่า SUPABASE_SECRET_KEY", 503);
     }
 
     const canonicalDraft = canonicalDraftFromRow(canonicalRow);

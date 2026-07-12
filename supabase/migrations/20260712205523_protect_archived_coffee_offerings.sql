@@ -1,22 +1,14 @@
--- Archived Single Origin lots remain as merchant history. Owners may clean up
--- only transient drafts or rejected submissions; approved and archived rows
--- require trusted administrative retention handling.
+-- Single Origin lots remain as merchant history. Browser clients never
+-- hard-delete them; trusted server workflows archive or clean them up.
 drop policy if exists coffee_offerings_delete_owner_nonpublic
   on public.coffee_offerings;
+drop policy if exists coffee_offerings_delete_owner_transient
+  on public.coffee_offerings;
 
-create policy coffee_offerings_delete_owner_transient
-on public.coffee_offerings
-for delete to authenticated
-using (
-  approval_status in ('draft', 'rejected')
-  and cafe_id in (
-    select co.cafe_id
-    from public.cafe_owners co
-    where co.profile_id = (select auth.uid())
-      and co.status = 'verified'
-  )
-);
+-- A material edit demotes an approved lot to draft, so draft status alone
+-- cannot prove that a lot has never been public. Hard deletion therefore stays
+-- server-only; the merchant removal flow archives canonical rows instead.
+revoke delete on table public.coffee_offerings from authenticated;
 
-comment on policy coffee_offerings_delete_owner_transient
-  on public.coffee_offerings is
-  'Verified owners may delete draft/rejected rows only; archived lots are retained for audit history.';
+comment on table public.coffee_offerings is
+  'Single Origin lots are retained as history. Browser clients may edit active lots but cannot hard-delete or mutate archived lots.';

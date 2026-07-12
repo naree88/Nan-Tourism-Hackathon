@@ -10,6 +10,7 @@ import {
   loadSupabaseMerchantProfile,
   type MerchantProfileSnapshot,
 } from "@/lib/merchant/profile";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isDemoMode } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -127,6 +128,13 @@ export async function POST(request: Request) {
       throw new OfferingRemovalRouteError("ข้อมูลเมล็ดปัจจุบันไม่มีชื่อที่ใช้ตรวจสอบได้", 409);
     }
 
+    // Identity and ownership are checked through the user's session above;
+    // only the backend writes the canonical removal draft and audit metadata.
+    const admin = demo ? null : createSupabaseAdminClient();
+    if (!demo && !admin) {
+      throw new OfferingRemovalRouteError("ระบบบันทึกร่างยังไม่ได้ตั้งค่า SUPABASE_SECRET_KEY", 503);
+    }
+
     const createdAt = new Date().toISOString();
     const rawInput = `นำเมล็ด ${canonicalBeanName} ออกจากหน้าร้าน เนื่องจากจำหน่ายหมดแล้ว`;
     const structuredUpdate = {
@@ -160,8 +168,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (supabase) {
-      const { error } = await supabase.from("content_drafts").insert({
+    if (admin) {
+      const { error } = await admin.from("content_drafts").insert({
         id: draft.id,
         cafe_id: body.cafeId,
         owner_profile_id: ownerProfileId,

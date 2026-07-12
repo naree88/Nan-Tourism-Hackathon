@@ -11,7 +11,10 @@ begin;
 create extension if not exists pgcrypto with schema extensions;
 create schema if not exists private;
 
-revoke all on schema private from public, anon, authenticated;
+-- Data API roles may use explicitly granted public objects, but must never
+-- create shadow objects in an exposed or privileged helper schema.
+revoke create on schema public from public, anon, authenticated, service_role;
+revoke all on schema private from public, anon, authenticated, service_role;
 
 -- Opt into the post-May-30-2026 least-privilege behavior on projects that still
 -- carry the legacy automatic Data API defaults.
@@ -24,7 +27,7 @@ alter default privileges for role postgres in schema public
 alter default privileges for role postgres in schema public
   revoke execute on functions from public;
 alter default privileges for role postgres in schema private
-  revoke execute on functions from public, anon, authenticated;
+  revoke execute on functions from public, anon, authenticated, service_role;
 
 create type public.profile_role as enum ('traveler', 'merchant', 'admin');
 create type public.cafe_status as enum ('draft', 'published', 'temporarily_closed', 'archived');
@@ -711,7 +714,7 @@ for each row execute function private.set_updated_at();
 create trigger cafe_unseen_places_set_updated_at before update on public.cafe_unseen_places
 for each row execute function private.set_updated_at();
 
-revoke execute on all functions in schema private from public, anon, authenticated;
+revoke execute on all functions in schema private from public, anon, authenticated, service_role;
 
 -- RLS: every table in the exposed public schema is protected.
 alter table public.profiles enable row level security;
@@ -757,13 +760,15 @@ using (
 create policy cafes_update_verified_owner on public.cafes
 for update to authenticated
 using (
-  id in (
+  status <> 'archived'
+  and id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
 )
 with check (
-  id in (
+  status <> 'archived'
+  and id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
@@ -802,13 +807,15 @@ with check (
 create policy coffee_offerings_update_owner on public.coffee_offerings
 for update to authenticated
 using (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
 )
 with check (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
@@ -852,13 +859,15 @@ with check (
 create policy menu_items_update_owner on public.menu_items
 for update to authenticated
 using (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
 )
 with check (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
@@ -902,13 +911,15 @@ with check (
 create policy workation_details_update_owner on public.workation_details
 for update to authenticated
 using (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
 )
 with check (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
@@ -1129,13 +1140,15 @@ with check (
 create policy cafe_unseen_places_update_owner on public.cafe_unseen_places
 for update to authenticated
 using (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
 )
 with check (
-  cafe_id in (
+  approval_status <> 'archived'
+  and cafe_id in (
     select co.cafe_id from public.cafe_owners co
     where co.profile_id = (select auth.uid()) and co.status = 'verified'
   )
@@ -1200,34 +1213,35 @@ to authenticated;
 grant insert (id, display_name, role, locale, avatar_url) on table public.profiles to authenticated;
 grant update (display_name, locale, avatar_url) on table public.profiles to authenticated;
 
+-- Owners may edit material storefront fields. Publication and approval state
+-- columns are intentionally omitted so only trusted server review paths can
+-- promote, archive, reject, or republish a record.
 grant update (
   name_th, name_en, description_th, description_en, address_th, address_en,
   latitude, longitude, phone, website_url, map_url, opening_hours,
-  opening_note_th, opening_note_en, photo_urls, status,
+  opening_note_th, opening_note_en, photo_urls,
   roast_in_nan
 ) on table public.cafes to authenticated;
 
 grant insert (
   cafe_id, bean_name, origin_province, origin_name, producer, is_nan_grown,
   process, process_detail, roast_level, tasting_notes_th, tasting_notes_en,
-  brew_methods, price_thb, availability, available_from, available_until,
-  approval_status
+  brew_methods, price_thb, availability, available_from, available_until
 ) on table public.coffee_offerings to authenticated;
 grant update (
   bean_name, origin_province, origin_name, producer, is_nan_grown,
   process, process_detail, roast_level, tasting_notes_th, tasting_notes_en,
-  brew_methods, price_thb, availability, available_from, available_until,
-  approval_status
+  brew_methods, price_thb, availability, available_from, available_until
 ) on table public.coffee_offerings to authenticated;
 grant delete on table public.coffee_offerings to authenticated;
 
 grant insert (
   cafe_id, name_th, name_en, description_th, description_en, category,
-  price_thb, is_available, is_seasonal, is_cafe_pick, approval_status
+  price_thb, is_available, is_seasonal, is_cafe_pick
 ) on table public.menu_items to authenticated;
 grant update (
   name_th, name_en, description_th, description_en, category,
-  price_thb, is_available, is_seasonal, is_cafe_pick, approval_status
+  price_thb, is_available, is_seasonal, is_cafe_pick
 ) on table public.menu_items to authenticated;
 grant delete on table public.menu_items to authenticated;
 
@@ -1235,15 +1249,13 @@ grant insert (
   cafe_id, free_wifi, outlets, seating_details_th, seating_details_en,
   work_suitability, quietness_note_th, quietness_note_en,
   video_call_suitability, hours_policy_th, hours_policy_en,
-  minimum_spend_thb, max_stay_minutes, is_workation_friendly,
-  approval_status
+  minimum_spend_thb, max_stay_minutes, is_workation_friendly
 ) on table public.workation_details to authenticated;
 grant update (
   free_wifi, outlets, seating_details_th, seating_details_en,
   work_suitability, quietness_note_th, quietness_note_en,
   video_call_suitability, hours_policy_th, hours_policy_en,
-  minimum_spend_thb, max_stay_minutes, is_workation_friendly,
-  approval_status
+  minimum_spend_thb, max_stay_minutes, is_workation_friendly
 ) on table public.workation_details to authenticated;
 grant delete on table public.workation_details to authenticated;
 
@@ -1257,11 +1269,11 @@ on table public.speed_reports to authenticated;
 
 grant insert (
   cafe_id, owner_profile_id, update_kind, input_method, source_input_text,
-  source_language, structured_data, thai_copy, english_copy, status
+  source_language, structured_data, thai_copy, english_copy
 ) on table public.content_drafts to authenticated;
 grant update (
   update_kind, input_method, source_input_text, source_language,
-  structured_data, thai_copy, english_copy, status
+  structured_data, thai_copy, english_copy
 ) on table public.content_drafts to authenticated;
 grant delete on table public.content_drafts to authenticated;
 
@@ -1295,11 +1307,11 @@ grant delete on table public.itineraries to authenticated;
 
 grant insert (
   cafe_id, unseen_place_id, travel_minutes, distance_km, transport_mode,
-  access_note_th, access_note_en, approval_status
+  access_note_th, access_note_en
 ) on table public.cafe_unseen_places to authenticated;
 grant update (
   travel_minutes, distance_km, transport_mode, access_note_th,
-  access_note_en, approval_status
+  access_note_en
 ) on table public.cafe_unseen_places to authenticated;
 grant delete on table public.cafe_unseen_places to authenticated;
 

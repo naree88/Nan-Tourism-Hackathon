@@ -5,6 +5,7 @@ import { getDemoMerchantProfile } from "@/lib/demo/merchant";
 import { loadSupabaseMerchantProfile } from "@/lib/merchant/profile";
 import { merchantDraftRequestSchema } from "@/lib/merchant/contracts";
 import { generateMerchantDraft } from "@/lib/merchant/draft-provider";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isDemoMode } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -56,6 +57,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "ไม่พบข้อมูลหน้าร้านปัจจุบัน" }, { status: 404 });
     }
 
+    // The browser session proves identity and ownership above. Persisting
+    // server-generated AI/media audit fields uses a separate backend-only
+    // client so authenticated browsers never receive write grants for them.
+    const admin = demo ? null : createSupabaseAdminClient();
+    if (!demo && !admin) {
+      return NextResponse.json({ message: "ระบบบันทึกร่างยังไม่ได้ตั้งค่า SUPABASE_SECRET_KEY" }, { status: 503 });
+    }
+
     const draft = await generateMerchantDraft({
       currentProfile,
       rawInput: body.rawInput,
@@ -78,8 +87,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (supabase) {
-      const { error } = await supabase.from("content_drafts").insert({
+    if (admin) {
+      const { error } = await admin.from("content_drafts").insert({
         id: draft.id,
         cafe_id: body.cafeId,
         owner_profile_id: ownerProfileId,

@@ -49,7 +49,26 @@ alter table public.content_drafts
   add constraint content_drafts_source_media_array
     check (jsonb_typeof(source_media) = 'array'),
   add constraint content_drafts_source_media_mvp_limit
-    check (jsonb_array_length(source_media) <= 1);
+    check (jsonb_array_length(source_media) <= 1),
+  add constraint content_drafts_generation_metadata_size
+    check (pg_column_size(generation_metadata) <= 16384),
+  add constraint content_drafts_source_media_size
+    check (pg_column_size(source_media) <= 16384),
+  add constraint content_drafts_source_media_metadata_only
+    check (
+      jsonb_array_length(source_media) = 0
+      or case
+        when jsonb_typeof(source_media -> 0) = 'object' then
+          (source_media -> 0) ?& array['name', 'mediaType', 'sizeBytes']
+          and ((source_media -> 0) - 'name' - 'mediaType' - 'sizeBytes') = '{}'::jsonb
+          and jsonb_typeof(source_media -> 0 -> 'name') = 'string'
+          and char_length(btrim(source_media -> 0 ->> 'name')) between 1 and 180
+          and source_media -> 0 ->> 'mediaType' in ('image/jpeg', 'image/png', 'image/webp')
+          and jsonb_typeof(source_media -> 0 -> 'sizeBytes') = 'number'
+          and (source_media -> 0 -> 'sizeBytes') between '1'::jsonb and '2097152'::jsonb
+        else false
+      end
+    );
 
 comment on column public.content_drafts.generation_metadata is
   'Server-generated provider, model, prompt-version, and image-analysis metadata.';
@@ -152,15 +171,17 @@ grant update (
 grant insert (featured_offering_id) on table public.menu_items to authenticated;
 grant update (featured_offering_id) on table public.menu_items to authenticated;
 
-grant insert (generation_metadata, source_media) on table public.content_drafts to authenticated;
-grant update (generation_metadata, source_media) on table public.content_drafts to authenticated;
+-- Provider/model provenance and image metadata are written only by trusted
+-- server routes. Explicit revokes document that they are not merchant-editable.
+revoke insert (generation_metadata, source_media) on table public.content_drafts from authenticated;
+revoke update (generation_metadata, source_media) on table public.content_drafts from authenticated;
 
 -- Trigger helpers stay private and non-callable by Data API roles.
 revoke execute on function private.reset_offering_approval_on_material_change()
-  from public, anon, authenticated;
+  from public, anon, authenticated, service_role;
 revoke execute on function private.reset_menu_approval_on_material_change()
-  from public, anon, authenticated;
+  from public, anon, authenticated, service_role;
 revoke execute on function private.reset_content_draft_approval_on_material_change()
-  from public, anon, authenticated;
+  from public, anon, authenticated, service_role;
 
 commit;

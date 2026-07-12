@@ -20,21 +20,26 @@ declare
   v_menu record;
   v_offering_name text;
   v_offering_updated_at timestamptz;
+  v_reviewed_at timestamptz := statement_timestamp();
   v_archived_count integer := 0;
   v_unlinked_menu_count integer := 0;
 begin
+  -- Keep the parameter for API compatibility, but use the database clock for
+  -- canonical approval audit fields rather than trusting a caller timestamp.
   if p_reviewed_at is null then
     raise exception 'A review timestamp is required.';
   end if;
 
-  -- Defense in depth for the server-only service-role caller.
-  if not exists (
-    select 1
-    from public.cafe_owners as owner
-    where owner.cafe_id = p_cafe_id
-      and owner.profile_id = p_reviewer_id
-      and owner.status = 'verified'
-  ) then
+  -- Lock the verified ownership row so it cannot be revoked while this
+  -- approval transaction is applying public storefront changes.
+  perform 1
+  from public.cafe_owners as owner
+  where owner.cafe_id = p_cafe_id
+    and owner.profile_id = p_reviewer_id
+    and owner.status = 'verified'
+  for update;
+
+  if not found then
     raise exception using
       errcode = '42501',
       message = 'The reviewer is not a verified owner of this cafe.';
@@ -56,11 +61,18 @@ begin
 
   -- This RPC is deliberately narrow: it may only apply the dedicated
   -- removal draft created by the server route, never a mixed AI update.
-  if v_structured_data -> 'kinds' <> '["offering"]'::jsonb
-    or v_structured_data ? 'offering'
-    or v_structured_data ? 'menuItems'
-    or v_structured_data ? 'openingNote'
-    or v_structured_data ? 'workation'
+  if v_structured_data -> 'kinds' is distinct from '["offering"]'::jsonb
+    or jsonb_typeof(v_structured_data -> 'fieldEvidence') is distinct from 'array'
+    or jsonb_typeof(v_structured_data -> 'unresolvedFields') is distinct from 'array'
+    or nullif(btrim(v_structured_data ->> 'extractorVersion'), '') is null
+    or exists (
+      select 1
+      from jsonb_object_keys(v_structured_data) as draft_key(key_name)
+      where draft_key.key_name not in (
+        'kinds', 'offeringRemovals', 'fieldEvidence',
+        'unresolvedFields', 'extractorVersion'
+      )
+    )
   then
     raise exception 'A sold-out removal draft cannot contain other storefront changes.';
   end if;
@@ -76,10 +88,17 @@ begin
   if exists (
     select 1
     from jsonb_array_elements(v_removals) as removal(item)
-    where nullif(removal.item ->> 'offeringId', '') is null
-      or nullif(btrim(removal.item ->> 'beanName'), '') is null
-      or removal.item ->> 'reason' is distinct from 'sold-out'
-      or nullif(removal.item ->> 'expectedUpdatedAt', '') is null
+    where case
+      when jsonb_typeof(removal.item) is distinct from 'object' then true
+      else
+        (removal.item - array[
+          'offeringId', 'beanName', 'reason', 'expectedUpdatedAt'
+        ]) <> '{}'::jsonb
+        or nullif(removal.item ->> 'offeringId', '') is null
+        or nullif(btrim(removal.item ->> 'beanName'), '') is null
+        or removal.item ->> 'reason' is distinct from 'sold-out'
+        or nullif(removal.item ->> 'expectedUpdatedAt', '') is null
+      end
   ) then
     raise exception 'A sold-out removal target is incomplete.';
   end if;
@@ -155,8 +174,8 @@ begin
         update public.menu_items
         set approval_status = 'approved',
             approved_by = p_reviewer_id,
-            approved_at = p_reviewed_at,
-            published_at = p_reviewed_at
+            approved_at = v_reviewed_at,
+            published_at = v_reviewed_at
         where id = v_menu.id
           and cafe_id = p_cafe_id
           and approval_status = 'draft';
@@ -195,8 +214,8 @@ begin
   update public.content_drafts
   set status = 'applied',
       approved_by = p_reviewer_id,
-      approved_at = p_reviewed_at,
-      applied_at = p_reviewed_at
+      approved_at = v_reviewed_at,
+      applied_at = v_reviewed_at
   where id = p_draft_id
     and cafe_id = p_cafe_id
     and owner_profile_id = p_reviewer_id

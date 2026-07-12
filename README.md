@@ -91,9 +91,9 @@ Copy `.env.example` to `.env.local` only when configuration is needed. Never com
 | `MERCHANT_DRAFT_PROVIDER` | Server config | `rules` for deterministic local parsing or `ai-gateway` for multimodal production extraction |
 | `MERCHANT_AI_MODEL` | Server config | Required in AI mode as an `openai/<model-id>` AI Gateway model string |
 | `AI_GATEWAY_API_KEY` | Server secret | Optional for local/non-Vercel Gateway calls; Vercel deployments should use automatic OIDC |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server secret | Required by the connected approval route for trusted, owner-authorized publication writes |
+| `SUPABASE_SECRET_KEY` | Server secret | Preferred backend-only key for trusted, owner-authorized publication writes; legacy `SUPABASE_SERVICE_ROLE_KEY` remains a temporary fallback |
 
-If both public key names are present, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` takes precedence. Publishable and legacy anon keys are intentionally public, but they are safe only with correctly tested RLS. Never give the service-role or model key a `NEXT_PUBLIC_` prefix.
+If both public key names are present, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` takes precedence. Publishable and legacy anon keys are intentionally public, but they are safe only with correctly tested RLS. Never give a Supabase secret/service-role key or model credential a `NEXT_PUBLIC_` prefix.
 
 ## Supabase migration and seed
 
@@ -134,7 +134,7 @@ Current boundary: traveler ranking, legacy cafe profile pages, and Unseen cards 
 
 ## Security boundaries
 
-- AI Gateway credentials and the Supabase service role are server-only. Current client/server Supabase sessions use the publishable/anon key plus RLS.
+- AI Gateway credentials and the Supabase secret/service-role key are server-only. Current client/server Supabase sessions use the publishable/anon key plus RLS.
 - Server authorization uses validated claims, not an unverified client session value.
 - Public reads are approval/publication/moderation gated. Merchant writes are verified-owner scoped; traveler records are owner scoped.
 - Editing approved public records resets approval where defined, so publication remains a separate explicit action.
@@ -150,10 +150,10 @@ Configure variables separately for all three Vercel scopes:
 | Scope | Recommended configuration |
 | --- | --- |
 | Development | Local/development Supabase project, `NEXT_PUBLIC_APP_URL=http://localhost:3000`, and development-only server secrets if needed |
-| Preview | Isolated preview project/keys and the intended preview base URL; never reuse production service-role/model secrets by default |
+| Preview | Isolated preview project/keys and the intended preview base URL; never reuse production database/model secrets by default |
 | Production | Production URL, publishable key, canonical app URL, and only the server secrets actually required |
 
-For production merchant updates set `APP_DATA_MODE=supabase`, `MERCHANT_DRAFT_PROVIDER=ai-gateway`, `MERCHANT_AI_MODEL=openai/<model-id>`, the Supabase public values, and `SUPABASE_SERVICE_ROLE_KEY`. Configure an OpenAI provider integration in Vercel AI Gateway. Keep local development on `demo` + `rules` until those services are ready.
+For production merchant updates set `APP_DATA_MODE=supabase`, `MERCHANT_DRAFT_PROVIDER=ai-gateway`, `MERCHANT_AI_MODEL=openai/<model-id>`, the Supabase public values, and `SUPABASE_SECRET_KEY`. Configure an OpenAI provider integration in Vercel AI Gateway. Keep local development on `demo` + `rules` until those services are ready.
 
 Use either the publishable key or legacy anon key in each scope. `NEXT_PUBLIC_` values are embedded into the client build, so redeploy after changing them. A local secret file is not available to Vercel automatically.
 
@@ -170,7 +170,7 @@ npm run build
 
 - ESLint completed with no errors or warnings.
 - TypeScript completed with no errors.
-- Vitest passed **133 tests across 18 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, provider selection, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, and review eligibility.
+- Vitest passed **136 tests across 19 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, provider selection, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
 - The Next.js production build completed and generated all traveler, cafe, merchant, auth, check-in, and API routes.
 - `npm audit` reported **0 known vulnerabilities** after applying the non-breaking AI SDK dependency patch recommended by npm.
 - HTTP smoke tests returned `200` for the merchant page. The merchant API completed menu rejection, voice-transcript bean/Workation approval, and multimodal photo-metadata flows; no image data URL appeared in the returned draft.
