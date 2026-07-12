@@ -156,7 +156,9 @@ export const merchantImageInputSchema = merchantSourceImageSchema.extend({
 });
 
 export const merchantDraftGenerationSchema = z.object({
-  provider: z.enum(["rules", "ai-gateway"]),
+  // Keep accepting legacy Gateway provenance when an older canonical draft is
+  // reviewed after the runtime has moved to direct OpenAI access.
+  provider: z.enum(["rules", "ai-gateway", "openai-direct"]),
   promptVersion: z.string().trim().min(1).max(120),
   model: z.string().trim().min(1).max(160).optional(),
   imageAnalysis: z.enum(["not-provided", "processed", "not-supported"]),

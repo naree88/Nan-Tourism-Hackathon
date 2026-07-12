@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  merchantDraftGenerationSchema,
   merchantDraftRequestSchema,
   structuredMerchantUpdateSchema,
 } from "./contracts";
@@ -92,6 +93,30 @@ describe("merchant photo request contract", () => {
       rawInput: "สั้น",
       inputMethod: "text",
     }).success).toBe(false);
+  });
+});
+
+describe("merchant generation provenance contract", () => {
+  it("accepts direct OpenAI provenance without exposing a provider-prefixed Gateway model", () => {
+    const generation = {
+      provider: "openai-direct",
+      model: "gpt-5.6-luna",
+      promptVersion: "merchant-profile-patch-v1.0.0",
+      imageAnalysis: "processed",
+    } as const;
+
+    expect(merchantDraftGenerationSchema.parse(generation)).toEqual(generation);
+  });
+
+  it("keeps legacy AI Gateway provenance readable without making it a runtime mode", () => {
+    const legacyGeneration = {
+      provider: "ai-gateway",
+      model: "openai/gpt-5.6-luna",
+      promptVersion: "merchant-profile-patch-v1.0.0",
+      imageAnalysis: "processed",
+    } as const;
+
+    expect(merchantDraftGenerationSchema.parse(legacyGeneration)).toEqual(legacyGeneration);
   });
 });
 

@@ -88,12 +88,12 @@ Copy `.env.example` to `.env.local` only when configuration is needed. Never com
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-visible | Legacy anon-key fallback; currently shown in `.env.example` |
 | `NEXT_PUBLIC_APP_URL` | Browser-visible | Absolute application base used for metadata; defaults to `http://localhost:3000` |
 | `APP_DATA_MODE` | Server config | `demo` locally or `supabase` for connected data; production fails closed when omitted |
-| `MERCHANT_DRAFT_PROVIDER` | Server config | `rules` for deterministic local parsing or `ai-gateway` for multimodal production extraction |
-| `MERCHANT_AI_MODEL` | Server config | Required in AI mode as an `openai/<model-id>` AI Gateway model string |
-| `AI_GATEWAY_API_KEY` | Server secret | Optional for local/non-Vercel Gateway calls; Vercel deployments should use automatic OIDC |
+| `MERCHANT_DRAFT_PROVIDER` | Server config | `rules` for deterministic local parsing or `openai-direct` for multimodal production extraction |
+| `MERCHANT_AI_MODEL` | Server config | Direct OpenAI model ID; use `gpt-5.6-luna` for the MVP |
+| `OPENAI_API_KEY` | Server secret | Project-scoped OpenAI key used only by server routes; mark it Sensitive in Vercel |
 | `SUPABASE_SECRET_KEY` | Server secret | Preferred backend-only key for trusted, owner-authorized publication writes; legacy `SUPABASE_SERVICE_ROLE_KEY` remains a temporary fallback |
 
-If both public key names are present, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` takes precedence. Publishable and legacy anon keys are intentionally public, but they are safe only with correctly tested RLS. Never give a Supabase secret/service-role key or model credential a `NEXT_PUBLIC_` prefix.
+If both public key names are present, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` takes precedence. Publishable and legacy anon keys are intentionally public, but they are safe only with correctly tested RLS. Never give a Supabase secret/service-role key or `OPENAI_API_KEY` a `NEXT_PUBLIC_` prefix. Use a restricted key created inside the dedicated OpenAI Project, allow only the APIs the app needs, and never commit or paste the key into logs, screenshots, issues, or chat.
 
 ## Supabase migration and seed
 
@@ -120,7 +120,7 @@ With a valid Supabase URL and public key, `/login` uses Supabase email/password 
 
 The connected merchant endpoints enforce the same ownership check before creating or reviewing a draft. The review endpoint reloads the canonical draft server-side; a rejected draft remains non-public, while approval applies the typed bean, menu, opening-note, and Workation patch with trusted server credentials. Raw transcript **text** may be stored as `content_drafts.source_input_text`; raw audio and image bytes are not persisted (only safe image metadata is retained with the draft).
 
-In local mode, `MERCHANT_DRAFT_PROVIDER=rules` keeps the flow credential-free and deterministic. It can retain an attached photo as review evidence but cannot read the image. In production, `MERCHANT_DRAFT_PROVIDER=ai-gateway` sends the current authoritative profile, merchant text, and optional image to the configured OpenAI model through Vercel AI Gateway and accepts only schema-validated structured output. The model can propose a draft but cannot publish it.
+In local mode, `MERCHANT_DRAFT_PROVIDER=rules` keeps the flow credential-free and deterministic. It can retain an attached photo as review evidence but cannot read the image. In production, `MERCHANT_DRAFT_PROVIDER=openai-direct` sends the current authoritative profile, merchant text, and optional image from the server route directly to the configured OpenAI model and accepts only schema-validated structured output. The request explicitly disables Responses API application-state storage. The model can propose a draft but cannot publish it.
 
 Current boundary: traveler ranking, legacy cafe profile pages, and Unseen cards still read the TypeScript fixtures. The merchant editor and approval path are prepared for Supabase, but production onboarding still needs an Auth user, matching profile, verified cafe ownership, migrated database, and one published cafe. Check-in/review remains a browser-local demo and is not production visit verification.
 
@@ -134,7 +134,9 @@ Current boundary: traveler ranking, legacy cafe profile pages, and Unseen cards 
 
 ## Security boundaries
 
-- AI Gateway credentials and the Supabase secret/service-role key are server-only. Current client/server Supabase sessions use the publishable/anon key plus RLS.
+- `OPENAI_API_KEY` and the Supabase secret/service-role key are server-only. Current client/server Supabase sessions use the publishable/anon key plus RLS.
+- The OpenAI key must belong to the dedicated `Nan Coffee MVP` Project with its Project spend limit set to **USD 5**. The app must treat OpenAI quota-exhaustion responses as a closed budget boundary and must not silently fall back to another project, key, provider, or model.
+- `store: false` prevents Responses API application-state storage for these calls, but it is not Zero Data Retention. OpenAI abuse-monitoring retention still follows the Project/organization data controls.
 - Server authorization uses validated claims, not an unverified client session value.
 - Public reads are approval/publication/moderation gated. Merchant writes are verified-owner scoped; traveler records are owner scoped.
 - Editing approved public records resets approval where defined, so publication remains a separate explicit action.
@@ -153,7 +155,9 @@ Configure variables separately for all three Vercel scopes:
 | Preview | Isolated preview project/keys and the intended preview base URL; never reuse production database/model secrets by default |
 | Production | Production URL, publishable key, canonical app URL, and only the server secrets actually required |
 
-For production merchant updates set `APP_DATA_MODE=supabase`, `MERCHANT_DRAFT_PROVIDER=ai-gateway`, `MERCHANT_AI_MODEL=openai/<model-id>`, the Supabase public values, and `SUPABASE_SECRET_KEY`. Configure an OpenAI provider integration in Vercel AI Gateway. Keep local development on `demo` + `rules` until those services are ready.
+For production merchant updates set `APP_DATA_MODE=supabase`, `MERCHANT_DRAFT_PROVIDER=openai-direct`, `MERCHANT_AI_MODEL=gpt-5.6-luna`, the Supabase public values, `SUPABASE_SECRET_KEY`, and the project-scoped `OPENAI_API_KEY`. Mark both server secrets Sensitive. Keep local development on `demo` + `rules` until those services are ready.
+
+Before enabling OpenAI Direct, set the **Nan Coffee MVP** OpenAI Project spend limit to **USD 5** and verify that the key was created inside that Project. OpenAI rejects new requests after that Project limit is reached; surface that state as a budget-exhausted error rather than retrying indefinitely or falling back to a different credential. The limit resets on the schedule shown in the OpenAI Project settings, so confirm the intended reset policy before production launch.
 
 Use either the publishable key or legacy anon key in each scope. `NEXT_PUBLIC_` values are embedded into the client build, so redeploy after changing them. A local secret file is not available to Vercel automatically.
 
@@ -170,7 +174,7 @@ npm run build
 
 - ESLint completed with no errors or warnings.
 - TypeScript completed with no errors.
-- Vitest passed **136 tests across 19 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, provider selection, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
+- Vitest passed **141 tests across 19 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, direct OpenAI configuration and quota-error classification, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
 - The Next.js production build completed and generated all traveler, cafe, merchant, auth, check-in, and API routes.
 - `npm audit` reported **0 known vulnerabilities** after applying the non-breaking AI SDK dependency patch recommended by npm.
 - HTTP smoke tests returned `200` for the merchant page. The merchant API completed menu rejection, voice-transcript bean/Workation approval, and multimodal photo-metadata flows; no image data URL appeared in the returned draft.

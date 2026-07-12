@@ -33,7 +33,7 @@ import { demoMerchantVoiceUpdate } from "@/lib/demo";
 import { buildMerchantDraftFromStructuredUpdate } from "@/lib/domain";
 import type {
   MerchantDraft,
-  MerchantDraftProvider,
+  MerchantDraftProviderMode,
   MerchantInputMethod,
   MerchantMenuItemPatch,
   MerchantOfferingPatch,
@@ -49,7 +49,7 @@ type Props = {
   currentProfile: MerchantProfileSnapshot;
   ownerProfileId: string;
   demo: boolean;
-  providerMode: MerchantDraftProvider;
+  providerMode: MerchantDraftProviderMode;
 };
 
 type InputSource = "text" | "voice_transcript" | "demo";

@@ -4,7 +4,10 @@ import { z } from "zod";
 import { getDemoMerchantProfile } from "@/lib/demo/merchant";
 import { loadSupabaseMerchantProfile } from "@/lib/merchant/profile";
 import { merchantDraftRequestSchema } from "@/lib/merchant/contracts";
-import { generateMerchantDraft } from "@/lib/merchant/draft-provider";
+import {
+  classifyMerchantDraftProviderError,
+  generateMerchantDraft,
+} from "@/lib/merchant/draft-provider";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isDemoMode } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -124,10 +127,24 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    const providerError = await classifyMerchantDraftProviderError(error);
+    if (providerError) {
+      return NextResponse.json(
+        {
+          message: providerError.publicMessage,
+          code: providerError.code,
+        },
+        {
+          status: providerError.status,
+          ...(providerError.retryAfter
+            ? { headers: { "Retry-After": providerError.retryAfter } }
+            : {}),
+        },
+      );
+    }
     return NextResponse.json(
       {
         message: "สร้างร่างไม่สำเร็จ ข้อมูลหน้าร้านเดิมยังไม่เปลี่ยน",
-        detail: error instanceof Error ? error.message : undefined,
       },
       { status: 503 },
     );

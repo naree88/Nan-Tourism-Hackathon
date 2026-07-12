@@ -394,7 +394,12 @@ export interface RankedCafe {
 
 export type MerchantUpdateKind = "offering" | "menu" | "opening-note" | "workation";
 export type MerchantInputMethod = "text" | "voice_transcript" | "photo" | "multimodal" | "demo";
-export type MerchantDraftProvider = "rules" | "ai-gateway";
+/**
+ * Persisted generation provenance. `ai-gateway` remains readable for drafts
+ * created before the production runtime switched to direct OpenAI access.
+ */
+export type MerchantDraftProvider = "rules" | "ai-gateway" | "openai-direct";
+export type MerchantDraftProviderMode = "rules" | "openai-direct";
 
 export interface ExtractedFieldEvidence {
   field: string;

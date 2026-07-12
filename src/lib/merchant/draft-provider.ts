@@ -8,7 +8,7 @@ import {
 } from "@/lib/domain/merchant";
 import type {
   MerchantDraft,
-  MerchantDraftProvider,
+  MerchantDraftProviderMode,
   MerchantInputMethod,
   StructuredMerchantUpdate,
 } from "@/lib/domain/types";
@@ -32,13 +32,116 @@ export type GenerateMerchantDraftInput = {
   context: MerchantDraftContext;
 };
 
-const providerSchema = z.enum(["rules", "ai-gateway"]);
-const gatewayModelSchema = z.string().regex(
-  /^openai\/[a-z0-9][a-z0-9._-]*$/i,
-  "MERCHANT_AI_MODEL must be an OpenAI model in provider/model form",
-);
+const providerSchema = z.enum(["rules", "openai-direct"]);
+const directOpenAIConfigSchema = z.object({
+  apiKey: z.string().trim().min(1),
+  model: z.string().trim().regex(
+    /^gpt-[a-z0-9][a-z0-9._-]*$/i,
+    "MERCHANT_AI_MODEL must be a direct OpenAI model ID such as gpt-5.6-luna",
+  ),
+}).strict();
 
-export function getMerchantDraftProviderMode(): MerchantDraftProvider {
+export type MerchantDraftProviderErrorCode =
+  | "AI_CONFIGURATION_ERROR"
+  | "AI_BUDGET_EXHAUSTED"
+  | "AI_RATE_LIMITED"
+  | "AI_TEMPORARILY_UNAVAILABLE";
+
+export class MerchantDraftProviderError extends Error {
+  constructor(
+    readonly code: MerchantDraftProviderErrorCode,
+    readonly status: number,
+    readonly publicMessage: string,
+    readonly retryAfter?: string,
+  ) {
+    super(code);
+    this.name = "MerchantDraftProviderError";
+  }
+}
+
+function configurationError() {
+  return new MerchantDraftProviderError(
+    "AI_CONFIGURATION_ERROR",
+    503,
+    "ระบบ AI ของร้านยังตั้งค่าไม่ครบ กรุณาแจ้งผู้ดูแลระบบ",
+  );
+}
+
+function directOpenAIConfig() {
+  const parsed = directOpenAIConfigSchema.safeParse({
+    apiKey: process.env.OPENAI_API_KEY,
+    model: process.env.MERCHANT_AI_MODEL,
+  });
+  if (!parsed.success) throw configurationError();
+  return parsed.data;
+}
+
+function openAIErrorText(error: { responseBody?: string; data?: unknown }) {
+  const parts: string[] = [];
+  if (typeof error.responseBody === "string") parts.push(error.responseBody);
+  if (error.data !== undefined) {
+    try {
+      parts.push(JSON.stringify(error.data));
+    } catch {
+      // Classification is best-effort; provider details are never returned.
+    }
+  }
+  return parts.join(" ").toLocaleLowerCase();
+}
+
+function isBudgetExhaustion(error: { responseBody?: string; data?: unknown }) {
+  const text = openAIErrorText(error);
+  return [
+    "insufficient_quota",
+    "usage_limit_reached",
+    "billing_hard_limit",
+    "spend limit",
+    "usage limit",
+    "exceeded your current quota",
+  ].some((marker) => text.includes(marker));
+}
+
+function safeRetryAfter(error: { responseHeaders?: Record<string, string> }) {
+  const value = Object.entries(error.responseHeaders ?? {}).find(
+    ([name]) => name.toLocaleLowerCase() === "retry-after",
+  )?.[1];
+  return value && /^\d{1,6}$/.test(value) ? value : undefined;
+}
+
+export async function classifyMerchantDraftProviderError(
+  error: unknown,
+): Promise<MerchantDraftProviderError | null> {
+  if (error instanceof MerchantDraftProviderError) return error;
+
+  const { APICallError } = await import("ai");
+  if (!APICallError.isInstance(error)) return null;
+
+  if ([400, 401, 403, 404].includes(error.statusCode ?? 0)) return configurationError();
+
+  if (error.statusCode === 429) {
+    if (isBudgetExhaustion(error)) {
+      return new MerchantDraftProviderError(
+        "AI_BUDGET_EXHAUSTED",
+        429,
+        "วงเงิน AI ของแอปครบแล้ว ระบบจึงหยุดสร้างร่างจนกว่าจะเริ่มรอบงบใหม่",
+      );
+    }
+    return new MerchantDraftProviderError(
+      "AI_RATE_LIMITED",
+      429,
+      "มีคำขอ AI พร้อมกันมากเกินไป กรุณารอสักครู่แล้วลองใหม่",
+      safeRetryAfter(error),
+    );
+  }
+
+  return new MerchantDraftProviderError(
+    "AI_TEMPORARILY_UNAVAILABLE",
+    503,
+    "ระบบ AI ไม่พร้อมใช้งานชั่วคราว กรุณาลองใหม่อีกครั้ง",
+  );
+}
+
+export function getMerchantDraftProviderMode(): MerchantDraftProviderMode {
   const configured = process.env.MERCHANT_DRAFT_PROVIDER?.trim();
   return configured ? providerSchema.parse(configured) : "rules";
 }
@@ -93,9 +196,11 @@ function generateWithRules(input: GenerateMerchantDraftInput): MerchantDraft {
   });
 }
 
-async function generateWithGateway(input: GenerateMerchantDraftInput): Promise<MerchantDraft> {
-  const model = gatewayModelSchema.parse(process.env.MERCHANT_AI_MODEL);
+async function generateWithDirectOpenAI(input: GenerateMerchantDraftInput): Promise<MerchantDraft> {
+  const { apiKey, model } = directOpenAIConfig();
+  const { createOpenAI } = await import("@ai-sdk/openai");
   const { generateText, Output } = await import("ai");
+  const openai = createOpenAI({ apiKey });
   const profileContext = JSON.stringify(input.currentProfile);
   const merchantText = input.rawInput.trim() || "เจ้าของร้านส่งรูปโดยไม่มีข้อความประกอบ";
   const instruction = [
@@ -126,14 +231,23 @@ async function generateWithGateway(input: GenerateMerchantDraftInput): Promise<M
   }
 
   const { output } = await generateText({
-    model,
+    model: openai.responses(model),
     system: instruction,
     messages: [{ role: "user", content }],
+    maxOutputTokens: 1_500,
+    maxRetries: 0,
     output: Output.object({
       name: "MerchantProfilePatch",
       description: "A review-only structured patch for the authenticated shop owner.",
       schema: merchantAIUpdateSchema,
     }),
+    providerOptions: {
+      openai: {
+        store: false,
+        reasoningEffort: "low",
+        textVerbosity: "low",
+      },
+    },
   });
 
   const resolved = resolveMenuIds(output, input.currentProfile);
@@ -148,7 +262,7 @@ async function generateWithGateway(input: GenerateMerchantDraftInput): Promise<M
     inputMethod: input.inputMethod,
     sourceImages: sourceImages(input),
     generation: {
-      provider: "ai-gateway",
+      provider: "openai-direct",
       model,
       promptVersion: MERCHANT_AI_PROMPT_VERSION,
       imageAnalysis: input.image ? "processed" : "not-provided",
@@ -158,5 +272,5 @@ async function generateWithGateway(input: GenerateMerchantDraftInput): Promise<M
 
 export async function generateMerchantDraft(input: GenerateMerchantDraftInput): Promise<MerchantDraft> {
   const provider = getMerchantDraftProviderMode();
-  return provider === "ai-gateway" ? generateWithGateway(input) : generateWithRules(input);
+  return provider === "openai-direct" ? generateWithDirectOpenAI(input) : generateWithRules(input);
 }
