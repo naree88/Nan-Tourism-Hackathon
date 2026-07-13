@@ -174,7 +174,7 @@ npm run build
 
 - ESLint completed with no errors or warnings.
 - TypeScript completed with no errors.
-- Vitest passed **146 tests across 20 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, direct OpenAI configuration and safe provider-error classification, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
+- Vitest passed **151 tests across 21 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, strict OpenAI response-schema compatibility and safe provider-error classification, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
 - The Next.js production build completed and generated all traveler, cafe, merchant, auth, check-in, and API routes.
 - `npm audit` reported **0 known vulnerabilities** after applying the non-breaking AI SDK dependency patch recommended by npm.
 - HTTP smoke tests returned `200` for the merchant page. The merchant API completed menu rejection, voice-transcript bean/Workation approval, and multimodal photo-metadata flows; no image data URL appeared in the returned draft.

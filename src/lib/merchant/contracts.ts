@@ -81,6 +81,100 @@ export const merchantAIUpdateSchema = z.object({
   unresolvedFields: z.array(z.string().trim().min(1).max(160)).max(40),
 }).strict();
 
+const merchantAILocalizedTextSchema = z.object({
+  th: z.string(),
+  en: z.string(),
+}).strict();
+
+const merchantAILocationSchema = z.object({
+  province: z.string().nullable(),
+  locality: z.string().nullable(),
+}).strict();
+
+const merchantAIPriceSchema = z.object({
+  amount: merchantOfferingPatchSchema.shape.price.unwrap().shape.amount,
+  currency: z.enum(["THB"]),
+}).strict();
+
+const merchantAIOfferingPatchSchema = z.object({
+  beanName: z.string().nullable(),
+  originProvince: z.string().nullable(),
+  originName: z.string().nullable(),
+  producer: z.string().nullable(),
+  altitudeMeters: merchantOfferingPatchSchema.shape.altitudeMeters.unwrap().nullable(),
+  varietal: z.string().nullable(),
+  process: merchantOfferingPatchSchema.shape.process.unwrap().nullable(),
+  processingLocation: merchantAILocationSchema.nullable(),
+  roastLevel: merchantOfferingPatchSchema.shape.roastLevel.unwrap().nullable(),
+  roasterLocation: merchantAILocationSchema.nullable(),
+  tastingNotes: z.array(merchantAILocalizedTextSchema).max(12),
+  tasteProfiles: merchantOfferingPatchSchema.shape.tasteProfiles,
+  brewMethods: merchantOfferingPatchSchema.shape.brewMethods,
+  price: merchantAIPriceSchema.nullable(),
+  availability: merchantOfferingPatchSchema.shape.availability.unwrap().nullable(),
+}).strict();
+
+const merchantAIMenuItemPatchSchema = z.object({
+  id: z.string().nullable(),
+  nameTh: z.string(),
+  nameEn: z.string().nullable(),
+  descriptionTh: z.string().nullable(),
+  descriptionEn: z.string().nullable(),
+  priceThb: merchantMenuItemPatchSchema.shape.priceThb.unwrap().nullable(),
+  isAvailable: z.boolean().nullable(),
+  isCafePick: z.boolean().nullable(),
+  usesFeaturedSingleOrigin: z.boolean().nullable(),
+}).strict();
+
+const merchantAIWorkationPatchSchema = z.object({
+  wifi: merchantWorkationPatchSchema.shape.wifi.unwrap().nullable(),
+  downloadMbps: merchantWorkationPatchSchema.shape.downloadMbps.unwrap().nullable(),
+  uploadMbps: merchantWorkationPatchSchema.shape.uploadMbps.unwrap().nullable(),
+  pingMs: merchantWorkationPatchSchema.shape.pingMs.unwrap().nullable(),
+  outlets: merchantWorkationPatchSchema.shape.outlets.unwrap().nullable(),
+  workSeating: merchantWorkationPatchSchema.shape.workSeating.unwrap().nullable(),
+  videoCalls: merchantWorkationPatchSchema.shape.videoCalls.unwrap().nullable(),
+  policyText: z.string().nullable(),
+}).strict();
+
+const merchantAIFieldEvidenceSchema = z.object({
+  field: z.string(),
+  sourceText: z.string(),
+  confidence: fieldEvidenceSchema.shape.confidence,
+}).strict();
+
+/**
+ * Wire contract for OpenAI strict Structured Outputs. Every object property is
+ * required; fields that are optional in the domain contract use null instead.
+ * Domain-only string constraints are intentionally enforced after normalization.
+ */
+export const merchantAIResponseSchema = z.object({
+  kinds: merchantAIUpdateSchema.shape.kinds,
+  offering: merchantAIOfferingPatchSchema.nullable(),
+  menuItems: z.array(merchantAIMenuItemPatchSchema).max(8).nullable(),
+  menuNote: z.string().nullable(),
+  openingNote: z.string().nullable(),
+  workation: merchantAIWorkationPatchSchema.nullable(),
+  fieldEvidence: z.array(merchantAIFieldEvidenceSchema).max(40),
+  unresolvedFields: z.array(z.string()).max(40),
+}).strict();
+
+function omitNullProperties(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(omitNullProperties);
+  if (!value || typeof value !== "object") return value;
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, item]) => item !== null)
+      .map(([key, item]) => [key, omitNullProperties(item)]),
+  );
+}
+
+export function normalizeMerchantAIResponse(value: unknown) {
+  const response = merchantAIResponseSchema.parse(value);
+  return merchantAIUpdateSchema.parse(omitNullProperties(response));
+}
+
 export const structuredMerchantUpdateSchema = merchantAIUpdateSchema.extend({
   offeringRemovals: z.array(merchantOfferingRemovalSchema).max(4).optional(),
   extractorVersion: z.string().trim().min(1).max(120),
