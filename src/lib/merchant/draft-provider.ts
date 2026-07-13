@@ -43,6 +43,10 @@ const directOpenAIConfigSchema = z.object({
 
 export type MerchantDraftProviderErrorCode =
   | "AI_CONFIGURATION_ERROR"
+  | "AI_PROVIDER_REQUEST_ERROR"
+  | "AI_PROVIDER_AUTHENTICATION_ERROR"
+  | "AI_PROVIDER_PERMISSION_ERROR"
+  | "AI_PROVIDER_RESOURCE_NOT_FOUND"
   | "AI_BUDGET_EXHAUSTED"
   | "AI_RATE_LIMITED"
   | "AI_TEMPORARILY_UNAVAILABLE";
@@ -64,6 +68,38 @@ function configurationError() {
     "AI_CONFIGURATION_ERROR",
     503,
     "ระบบ AI ของร้านยังตั้งค่าไม่ครบ กรุณาแจ้งผู้ดูแลระบบ",
+  );
+}
+
+function providerRequestError() {
+  return new MerchantDraftProviderError(
+    "AI_PROVIDER_REQUEST_ERROR",
+    503,
+    "OpenAI ไม่ยอมรับรูปแบบคำขอ กรุณาตรวจสอบโมเดลและการตั้งค่า API",
+  );
+}
+
+function providerAuthenticationError() {
+  return new MerchantDraftProviderError(
+    "AI_PROVIDER_AUTHENTICATION_ERROR",
+    503,
+    "OpenAI ปฏิเสธ API key กรุณาตรวจสอบ OPENAI_API_KEY แล้ว redeploy",
+  );
+}
+
+function providerPermissionError() {
+  return new MerchantDraftProviderError(
+    "AI_PROVIDER_PERMISSION_ERROR",
+    503,
+    "API key ไม่มีสิทธิ์เรียก Responses API หรือ Project ไม่มีสิทธิ์ใช้โมเดลนี้",
+  );
+}
+
+function providerResourceNotFoundError() {
+  return new MerchantDraftProviderError(
+    "AI_PROVIDER_RESOURCE_NOT_FOUND",
+    503,
+    "OpenAI ไม่พบโมเดลที่ตั้งไว้ กรุณาตรวจสอบ MERCHANT_AI_MODEL",
   );
 }
 
@@ -116,7 +152,10 @@ export async function classifyMerchantDraftProviderError(
   const { APICallError } = await import("ai");
   if (!APICallError.isInstance(error)) return null;
 
-  if ([400, 401, 403, 404].includes(error.statusCode ?? 0)) return configurationError();
+  if (error.statusCode === 400) return providerRequestError();
+  if (error.statusCode === 401) return providerAuthenticationError();
+  if (error.statusCode === 403) return providerPermissionError();
+  if (error.statusCode === 404) return providerResourceNotFoundError();
 
   if (error.statusCode === 429) {
     if (isBudgetExhaustion(error)) {
@@ -143,7 +182,10 @@ export async function classifyMerchantDraftProviderError(
 
 export function getMerchantDraftProviderMode(): MerchantDraftProviderMode {
   const configured = process.env.MERCHANT_DRAFT_PROVIDER?.trim();
-  return configured ? providerSchema.parse(configured) : "rules";
+  if (!configured) return "rules";
+  const parsed = providerSchema.safeParse(configured);
+  if (!parsed.success) throw configurationError();
+  return parsed.data;
 }
 
 function sourceImages(input: GenerateMerchantDraftInput) {
@@ -230,7 +272,7 @@ async function generateWithDirectOpenAI(input: GenerateMerchantDraftInput): Prom
     });
   }
 
-  const { output } = await generateText({
+  const result = await generateText({
     model: openai.responses(model),
     system: instruction,
     messages: [{ role: "user", content }],
@@ -250,7 +292,18 @@ async function generateWithDirectOpenAI(input: GenerateMerchantDraftInput): Prom
     },
   });
 
-  const resolved = resolveMenuIds(output, input.currentProfile);
+  console.info("[merchant-draft] OpenAI usage", {
+    model,
+    inputTokens: result.usage.inputTokens,
+    inputNoCacheTokens: result.usage.inputTokenDetails.noCacheTokens,
+    inputCacheReadTokens: result.usage.inputTokenDetails.cacheReadTokens,
+    inputCacheWriteTokens: result.usage.inputTokenDetails.cacheWriteTokens,
+    outputTokens: result.usage.outputTokens,
+    outputTextTokens: result.usage.outputTokenDetails.textTokens,
+    outputReasoningTokens: result.usage.outputTokenDetails.reasoningTokens,
+  });
+
+  const resolved = resolveMenuIds(result.output, input.currentProfile);
   const structuredUpdate: StructuredMerchantUpdate = {
     ...resolved,
     kinds: normalizedKinds(resolved),

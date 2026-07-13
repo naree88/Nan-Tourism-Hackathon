@@ -47,7 +47,10 @@ describe.sequential("merchant draft provider selection", () => {
 
   it("rejects an unknown provider instead of silently selecting one", () => {
     process.env.MERCHANT_DRAFT_PROVIDER = "ai-gateway";
-    expect(() => getMerchantDraftProviderMode()).toThrow();
+    expect(() => getMerchantDraftProviderMode()).toThrowError(expect.objectContaining({
+      code: "AI_CONFIGURATION_ERROR",
+      status: 503,
+    }));
   });
 
   it("fails closed before a provider call when direct OpenAI configuration is missing", async () => {
@@ -116,6 +119,37 @@ describe.sequential("merchant draft provider selection", () => {
       retryAfter: "12",
     });
   });
+
+  it.each([
+    [400, "AI_PROVIDER_REQUEST_ERROR"],
+    [401, "AI_PROVIDER_AUTHENTICATION_ERROR"],
+    [403, "AI_PROVIDER_PERMISSION_ERROR"],
+    [404, "AI_PROVIDER_RESOURCE_NOT_FOUND"],
+  ] as const)(
+    "maps OpenAI %i without exposing the provider error",
+    async (statusCode, expectedCode) => {
+      const providerSecret = `provider-secret-${statusCode}`;
+      const providerError = new APICallError({
+        message: providerSecret,
+        url: "https://api.openai.com/v1/responses",
+        requestBodyValues: { input: providerSecret },
+        statusCode,
+        responseBody: JSON.stringify({
+          error: { message: providerSecret, code: `provider_code_${statusCode}` },
+        }),
+      });
+
+      const classified = await classifyMerchantDraftProviderError(providerError);
+
+      expect(classified).toMatchObject({
+        code: expectedCode,
+        status: 503,
+      });
+      expect(classified?.message).toBe(expectedCode);
+      expect(classified?.publicMessage).not.toContain(providerSecret);
+      expect(JSON.stringify(classified)).not.toContain(providerSecret);
+    },
+  );
 
   it("keeps image bytes out of a rules draft and reports that the image was not analyzed", async () => {
     process.env.MERCHANT_DRAFT_PROVIDER = "rules";

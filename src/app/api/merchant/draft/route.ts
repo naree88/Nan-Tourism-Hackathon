@@ -129,6 +129,10 @@ export async function POST(request: Request) {
     }
     const providerError = await classifyMerchantDraftProviderError(error);
     if (providerError) {
+      console.warn("[merchant-draft] Provider request failed", {
+        code: providerError.code,
+        status: providerError.status,
+      });
       return NextResponse.json(
         {
           message: providerError.publicMessage,
