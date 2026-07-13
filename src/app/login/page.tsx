@@ -1,24 +1,59 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Coffee, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Coffee, ShieldCheck } from "lucide-react";
+
 import { LoginForm } from "@/components/login-form";
+import { getSafeMerchantNextPath } from "@/lib/auth/demo-merchant";
 import { isDemoMode } from "@/lib/supabase/config";
 
-export const metadata: Metadata = { title: "เข้าสู่ระบบ" };
+export const metadata: Metadata = {
+  title: "เข้าสู่ระบบร้านค้า",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ next?: string | string[] }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const requestedNext = Array.isArray(params.next) ? params.next[0] : params.next;
+  const nextPath = getSafeMerchantNextPath(requestedNext);
   const demo = isDemoMode();
+
   return (
-    <div className="page-container narrow-container">
-      <section className="login-card">
-        <span className="brand-mark" style={{ width: 54, height: 54 }}><Coffee size={25} /></span>
-        <div className="page-heading" style={{ margin: 0 }}><span className="eyebrow">Merchant access</span><h1 style={{ fontSize: "clamp(2rem, 10vw, 3.2rem)" }}>เข้าสู่ระบบเจ้าของร้าน</h1><p>ผู้เดินทางไม่ต้องล็อกอินเพื่อค้นหา ส่วนการอัปเดตร้านต้องผ่านบัญชีที่ยืนยัน ownership</p></div>
+    <div className="page-container narrow-container login-page">
+      <Link className="login-back-link" href="/">
+        <ArrowLeft size={16} aria-hidden="true" />
+        กลับหน้าค้นหาร้านกาแฟ
+      </Link>
+
+      <section className="login-card" aria-labelledby="merchant-login-heading">
+        <div className="login-card__intro">
+          <span className="brand-mark login-card__mark" aria-hidden="true">
+            <Coffee size={25} />
+          </span>
+          <div>
+            <span className="eyebrow">Merchant access</span>
+            <h1 id="merchant-login-heading">เข้าสู่ระบบร้านค้า</h1>
+            <p>สำหรับเจ้าของร้านที่ต้องการอัปเดตเมล็ดกาแฟ เมนู และข้อมูลหน้าร้าน</p>
+          </div>
+        </div>
+
         {demo ? (
-          <>
-            <div className="notice notice--warm"><ShieldCheck size={17} /> Demo mode จะใช้บัญชี merchant-demo-01 อัตโนมัติ ไม่มีรหัสผ่านจริงและไม่มีข้อมูลถูกส่งออกจากเบราว์เซอร์</div>
-            <Link className="button button--primary button--full" href="/merchant">เข้า Merchant demo</Link>
-          </>
-        ) : <LoginForm />}
+          <div className="notice login-demo-scope">
+            <ShieldCheck size={18} aria-hidden="true" />
+            <div>
+              <strong>บัญชีสำหรับกรรมการทดสอบ MVP</strong>
+              <span>บัญชีนี้จัดการได้เฉพาะร้านฟองคำ คอฟฟี่พอยต์ และไม่เชื่อมกับข้อมูลส่วนตัว</span>
+            </div>
+          </div>
+        ) : null}
+
+        <LoginForm demo={demo} nextPath={nextPath} />
       </section>
     </div>
   );

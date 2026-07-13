@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { MerchantDashboard } from "@/components/merchant-dashboard";
+import { requireDemoMerchantSession } from "@/lib/auth/demo-merchant-session";
 import { getDemoMerchantProfile } from "@/lib/demo/merchant";
 import { getMerchantDraftProviderMode } from "@/lib/merchant/draft-provider";
 import { loadSupabaseMerchantProfile } from "@/lib/merchant/profile";
@@ -16,6 +17,12 @@ export default async function MerchantPage() {
   const providerMode = getMerchantDraftProviderMode();
 
   if (demo) {
+    const session = await requireDemoMerchantSession();
+    if (!session.ok) {
+      if (session.status === 503) throw new Error(session.message);
+      redirect("/login?next=/merchant");
+    }
+
     const currentProfile = getDemoMerchantProfile();
     if (!currentProfile) {
       throw new Error("The linked MVP merchant cafe is missing from the new finder data.");

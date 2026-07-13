@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -8,6 +9,7 @@ import {
   BadgeCheck,
   CheckCircle2,
   Coffee,
+  LogOut,
   PencilLine,
   RotateCcw,
   Save,
@@ -44,6 +46,7 @@ import {
   applyMerchantUpdateToProfile,
   type MerchantProfileSnapshot,
 } from "@/lib/merchant/profile";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Props = {
   currentProfile: MerchantProfileSnapshot;
@@ -83,6 +86,7 @@ export function MerchantDashboard({
   demo,
   providerMode,
 }: Props) {
+  const router = useRouter();
   const storedApproval = useApprovedDemoProfile(currentProfile.cafe.id);
   const [sessionProfile, setSessionProfile] = useState<MerchantProfileSnapshot | null>(null);
   const baseProfile = sessionProfile
@@ -96,6 +100,7 @@ export function MerchantDashboard({
   const [approvedProfile, setApprovedProfile] = useState<MerchantProfileSnapshot | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<"approved" | "rejected" | null>(null);
 
@@ -108,6 +113,17 @@ export function MerchantDashboard({
   }, [baseProfile, draft]);
   const managedOfferings = baseProfile.offerings
     ?? (baseProfile.featuredOffering ? [baseProfile.featuredOffering] : []);
+
+  async function signOut() {
+    setIsSigningOut(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.signOut({ scope: "local" });
+    } finally {
+      router.replace("/login");
+      router.refresh();
+    }
+  }
 
   async function createOfferingRemovalDraft() {
     const target = removalCandidate;
@@ -429,9 +445,15 @@ export function MerchantDashboard({
           <ArrowLeft size={18} aria-hidden="true" />
           กลับไปค้นหาร้านกาแฟ
         </Link>
-        <Link className="merchant-route-nav__storefront" href={`/cafes/${baseProfile.cafe.slug}`}>
-          ดูหน้าร้านปัจจุบัน <ArrowRight size={16} aria-hidden="true" />
-        </Link>
+        <div className="merchant-route-nav__actions">
+          <Link className="merchant-route-nav__storefront" href={`/cafes/${baseProfile.cafe.slug}`}>
+            ดูหน้าร้านปัจจุบัน <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+          <button className="merchant-route-nav__logout" type="button" onClick={signOut} disabled={isSigningOut}>
+            <LogOut size={16} aria-hidden="true" />
+            {isSigningOut ? "กำลังออก…" : "ออกจากระบบ"}
+          </button>
+        </div>
       </nav>
       <header className="page-heading merchant-heading">
         <span className="eyebrow">Merchant profile co-pilot</span>

@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { requireDemoMerchantSession } from "@/lib/auth/demo-merchant-session";
 import { getDemoMerchantProfile } from "@/lib/demo/merchant";
 import {
   approveMerchantDraft,
@@ -148,8 +149,16 @@ function reviewDemoDraft(action: "approve" | "reject", draft: MerchantDraft) {
 
 export async function POST(request: Request) {
   try {
+    const demo = isDemoMode();
+    if (demo) {
+      const session = await requireDemoMerchantSession();
+      if (!session.ok) {
+        return NextResponse.json({ message: session.message }, { status: session.status });
+      }
+    }
+
     const body = schema.parse(await request.json());
-    if (isDemoMode()) return reviewDemoDraft(body.action, body.draft);
+    if (demo) return reviewDemoDraft(body.action, body.draft);
 
     const sessionClient = await createSupabaseServerClient();
     if (!sessionClient) {

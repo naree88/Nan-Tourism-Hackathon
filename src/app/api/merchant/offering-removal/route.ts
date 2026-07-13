@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { requireDemoMerchantSession } from "@/lib/auth/demo-merchant-session";
 import { buildMerchantDraftFromStructuredUpdate } from "@/lib/domain/merchant";
 import type { StructuredMerchantUpdate } from "@/lib/domain/types";
 import { getDemoMerchantProfile } from "@/lib/demo/merchant";
@@ -64,8 +65,15 @@ function resolveDemoOffering(
 
 export async function POST(request: Request) {
   try {
-    const body = merchantOfferingRemovalDraftRequestSchema.parse(await request.json());
     const demo = isDemoMode();
+    if (demo) {
+      const session = await requireDemoMerchantSession();
+      if (!session.ok) {
+        return NextResponse.json({ message: session.message }, { status: session.status });
+      }
+    }
+
+    const body = merchantOfferingRemovalDraftRequestSchema.parse(await request.json());
     const supabase = demo ? null : await createSupabaseServerClient();
     if (!demo && !supabase) {
       throw new OfferingRemovalRouteError("ระบบ Supabase ยังตั้งค่าไม่ครบ", 503);

@@ -3,6 +3,9 @@ import { APICallError } from "ai";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/config", () => ({ isDemoMode: () => true }));
+vi.mock("@/lib/auth/demo-merchant-session", () => ({
+  requireDemoMerchantSession: vi.fn(),
+}));
 vi.mock("@/lib/merchant/draft-provider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/merchant/draft-provider")>();
   return {
@@ -12,6 +15,7 @@ vi.mock("@/lib/merchant/draft-provider", async (importOriginal) => {
 });
 
 import { POST } from "./route";
+import { requireDemoMerchantSession } from "@/lib/auth/demo-merchant-session";
 import { generateMerchantDraft } from "@/lib/merchant/draft-provider";
 
 function postDraft() {
@@ -29,6 +33,24 @@ function postDraft() {
 describe("POST /api/merchant/draft provider errors", () => {
   beforeEach(() => {
     vi.mocked(generateMerchantDraft).mockReset();
+    vi.mocked(requireDemoMerchantSession).mockResolvedValue({
+      ok: true,
+      userId: "auth-user-1",
+      ownerProfileId: "merchant-demo-01",
+    });
+  });
+
+  it("rejects an anonymous demo request before calling the AI provider", async () => {
+    vi.mocked(requireDemoMerchantSession).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      message: "กรุณาเข้าสู่ระบบร้านค้า",
+    });
+
+    const response = await postDraft();
+
+    expect(response.status).toBe(401);
+    expect(generateMerchantDraft).not.toHaveBeenCalled();
   });
 
   it("returns only the safe mapped provider error", async () => {

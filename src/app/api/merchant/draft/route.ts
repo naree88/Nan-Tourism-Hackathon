@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { requireDemoMerchantSession } from "@/lib/auth/demo-merchant-session";
 import { getDemoMerchantProfile } from "@/lib/demo/merchant";
 import { loadSupabaseMerchantProfile } from "@/lib/merchant/profile";
 import { merchantDraftRequestSchema } from "@/lib/merchant/contracts";
@@ -22,8 +23,15 @@ function updateKind(kinds: string[]) {
 
 export async function POST(request: Request) {
   try {
-    const body = merchantDraftRequestSchema.parse(await request.json());
     const demo = isDemoMode();
+    if (demo) {
+      const session = await requireDemoMerchantSession();
+      if (!session.ok) {
+        return NextResponse.json({ message: session.message }, { status: session.status });
+      }
+    }
+
+    const body = merchantDraftRequestSchema.parse(await request.json());
     const supabase = demo ? null : await createSupabaseServerClient();
     if (!demo && !supabase) {
       return NextResponse.json({ message: "ระบบ Supabase ยังตั้งค่าไม่ครบ" }, { status: 503 });
