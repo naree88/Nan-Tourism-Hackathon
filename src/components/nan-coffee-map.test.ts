@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   clampMapViewport,
   fitMapViewport,
+  pinchMapViewport,
   zoomMapViewport,
   type MapViewport,
 } from "./nan-coffee-map";
@@ -27,10 +28,25 @@ describe("NanCoffeeMap viewport controls", () => {
   it("clamps zoom and pan to the province-map viewport", () => {
     const clamped = clampMapViewport({ x: -500, y: 900, width: 1, height: 1 });
 
-    expect(clamped.width).toBe(47.5);
-    expect(clamped.height).toBeCloseTo(43.75, 10);
+    expect(clamped.width).toBe(11.875);
+    expect(clamped.height).toBeCloseTo(10.9375, 10);
     expect(clamped.x).toBe(0);
-    expect(clamped.y).toBeCloseTo(656.25, 10);
+    expect(clamped.y).toBeCloseTo(689.0625, 10);
+  });
+
+  it("supports pinch zoom beyond 1600% while keeping the gesture focus stable", () => {
+    const focus = { x: 380, y: 350 };
+    const zoomed = pinchMapViewport(fullViewport, 32, focus, { x: 0.5, y: 0.5 });
+
+    expect(760 / zoomed.width).toBe(32);
+    expect((focus.x - zoomed.x) / zoomed.width).toBeCloseTo(0.5, 10);
+    expect((focus.y - zoomed.y) / zoomed.height).toBeCloseTo(0.5, 10);
+  });
+
+  it("caps the map at 6400% zoom", () => {
+    const zoomed = zoomMapViewport(fullViewport, 100);
+
+    expect(760 / zoomed.width).toBe(64);
   });
 
   it("fits plotted points inside a bounded, aspect-correct detail viewport", () => {

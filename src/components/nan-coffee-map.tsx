@@ -1,12 +1,12 @@
 "use client";
 
 import {
+  useEffect,
   useId,
   useRef,
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-  type WheelEvent as ReactWheelEvent,
 } from "react";
 
 export type NanLngLat = readonly [longitude: number, latitude: number];
@@ -80,6 +80,18 @@ type MapDragState = {
   viewport: MapViewport;
 };
 
+type MapTouchPoint = {
+  clientX: number;
+  clientY: number;
+};
+
+type MapPinchState = {
+  pointerIds: readonly [number, number];
+  distance: number;
+  focus: ProjectedPoint;
+  viewport: MapViewport;
+};
+
 const VIEWBOX_WIDTH = 760;
 const VIEWBOX_HEIGHT = 700;
 const MAP_PADDING = 54;
@@ -88,7 +100,7 @@ const DETAIL_VIEWBOX_HEIGHT = 360;
 const DETAIL_MAP_PADDING = 42;
 const DETAIL_MINIMUM_EXTENT_KM = 12;
 const KM_PER_LATITUDE_DEGREE = 110.574;
-const MAX_MAP_ZOOM = 16;
+const MAX_MAP_ZOOM = 64;
 const ZOOM_STEP = 1.6;
 const FULL_MAP_VIEWPORT: MapViewport = {
   x: 0,
@@ -242,6 +254,27 @@ export function zoomMapViewport(
   return clampMapViewport({
     x: focus.x - focusRatioX * width,
     y: focus.y - focusRatioY * height,
+    width,
+    height,
+  });
+}
+
+export function pinchMapViewport(
+  viewport: MapViewport,
+  factor: number,
+  focus: ProjectedPoint,
+  focusRatio: ProjectedPoint,
+): MapViewport {
+  const width = clamp(
+    viewport.width / factor,
+    VIEWBOX_WIDTH / MAX_MAP_ZOOM,
+    VIEWBOX_WIDTH,
+  );
+  const height = width * (VIEWBOX_HEIGHT / VIEWBOX_WIDTH);
+
+  return clampMapViewport({
+    x: focus.x - clamp(focusRatio.x, 0, 1) * width,
+    y: focus.y - clamp(focusRatio.y, 0, 1) * height,
     width,
     height,
   });
@@ -769,7 +802,11 @@ export function NanCoffeeMap({
   const mapCanvasId = `nan-map-canvas-${reactId}`;
   const [mapViewport, setMapViewport] = useState<MapViewport>(FULL_MAP_VIEWPORT);
   const [isDragging, setIsDragging] = useState(false);
+  const mapCanvasRef = useRef<SVGSVGElement | null>(null);
+  const mapViewportRef = useRef<MapViewport>(FULL_MAP_VIEWPORT);
   const dragStateRef = useRef<MapDragState | null>(null);
+  const touchPointersRef = useRef<Map<number, MapTouchPoint>>(new Map());
+  const pinchStateRef = useRef<MapPinchState | null>(null);
   const rings = normalizeBoundary(nanBoundary);
   const validLocations = selectedLocations.filter(isValidMapPoint);
   const validCafes = cafes.filter(isValidMapPoint);
@@ -778,6 +815,7 @@ export function NanCoffeeMap({
     ...validCafes.map((cafe): NanLngLat => [cafe.lng, cafe.lat]),
   ];
   const projection = createProjection(rings, plottedPositions);
+  const hasProjection = Boolean(projection);
   const resolvedRadiusKm = Math.max(0, radiusKm);
   const resolvedCorridorKm = Math.max(0, corridorKm);
   const currentMapZoom = VIEWBOX_WIDTH / mapViewport.width;
@@ -788,6 +826,46 @@ export function NanCoffeeMap({
     (validLocations.length > 0
       ? `แสดงร้านในรัศมี ${resolvedRadiusKm.toLocaleString("th-TH")} กิโลเมตรจากแต่ละจุด และร้านในแนวเส้นทาง ±${resolvedCorridorKm.toLocaleString("th-TH")} กิโลเมตร`
       : "แสดงร้านกาแฟในจังหวัดน่านที่มีข้อมูลอยู่ในแอป");
+
+  useEffect(() => {
+    const canvas = mapCanvasRef.current;
+    if (!canvas) return;
+
+    function handleWheel(event: WheelEvent) {
+      const bounds = (event.currentTarget as SVGSVGElement).getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0 || event.deltaY === 0) return;
+
+      const current = mapViewportRef.current;
+      const zoom = VIEWBOX_WIDTH / current.width;
+      if (
+        (event.deltaY > 0 && zoom <= 1.01) ||
+        (event.deltaY < 0 && zoom >= MAX_MAP_ZOOM - 0.01)
+      ) {
+        return;
+      }
+
+      const deltaPixels = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+        ? event.deltaY * 16
+        : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+          ? event.deltaY * bounds.height
+          : event.deltaY;
+      const factor = Math.exp(-clamp(deltaPixels, -240, 240) * 0.0025);
+      const ratioX = clamp((event.clientX - bounds.left) / bounds.width, 0, 1);
+      const ratioY = clamp((event.clientY - bounds.top) / bounds.height, 0, 1);
+      const next = zoomMapViewport(current, factor, {
+        x: current.x + ratioX * current.width,
+        y: current.y + ratioY * current.height,
+      });
+
+      if (Math.abs(next.width - current.width) < 0.001) return;
+      event.preventDefault();
+      mapViewportRef.current = next;
+      setMapViewport(next);
+    }
+
+    canvas.addEventListener("wheel", handleWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", handleWheel);
+  }, [hasProjection]);
 
   if (!projection) {
     return (
@@ -820,56 +898,120 @@ export function NanCoffeeMap({
   const canZoomIn = currentMapZoom < MAX_MAP_ZOOM - 0.01;
   const canZoomOut = currentMapZoom > 1.01;
 
+  function updateMapViewport(transform: (current: MapViewport) => MapViewport) {
+    const next = transform(mapViewportRef.current);
+    mapViewportRef.current = next;
+    setMapViewport(next);
+  }
+
   function zoomIn() {
-    setMapViewport((current) => zoomMapViewport(current, ZOOM_STEP));
+    updateMapViewport((current) => zoomMapViewport(current, ZOOM_STEP));
   }
 
   function zoomOut() {
-    setMapViewport((current) => zoomMapViewport(current, 1 / ZOOM_STEP));
+    updateMapViewport((current) => zoomMapViewport(current, 1 / ZOOM_STEP));
   }
 
   function resetMapViewport() {
+    mapViewportRef.current = FULL_MAP_VIEWPORT;
     setMapViewport(FULL_MAP_VIEWPORT);
   }
 
   function focusPlottedPoints() {
-    setMapViewport(fitMapViewport(projectedPlotPoints));
-  }
-
-  function handleMapWheel(event: ReactWheelEvent<SVGSVGElement>) {
-    if (
-      (event.deltaY >= 0 && currentMapZoom <= 1.01) ||
-      (event.deltaY < 0 && currentMapZoom >= MAX_MAP_ZOOM - 0.01)
-    ) {
-      return;
-    }
-    event.preventDefault();
-    const bounds = event.currentTarget.getBoundingClientRect();
-    if (bounds.width <= 0 || bounds.height <= 0) return;
-
-    const ratioX = clamp((event.clientX - bounds.left) / bounds.width, 0, 1);
-    const ratioY = clamp((event.clientY - bounds.top) / bounds.height, 0, 1);
-    const factor = event.deltaY < 0 ? 1.28 : 1 / 1.28;
-
-    setMapViewport((current) => zoomMapViewport(current, factor, {
-      x: current.x + ratioX * current.width,
-      y: current.y + ratioY * current.height,
-    }));
+    const next = fitMapViewport(projectedPlotPoints);
+    mapViewportRef.current = next;
+    setMapViewport(next);
   }
 
   function handleMapPointerDown(event: ReactPointerEvent<SVGSVGElement>) {
-    if (currentMapZoom <= 1.01) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    if (event.pointerType === "touch") {
+      touchPointersRef.current.set(event.pointerId, {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+      event.currentTarget.setPointerCapture(event.pointerId);
+
+      const pointers = [...touchPointersRef.current.entries()];
+      if (pointers.length >= 2) {
+        const [[firstId, first], [secondId, second]] = pointers;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const distance = Math.hypot(
+          second.clientX - first.clientX,
+          second.clientY - first.clientY,
+        );
+        if (bounds.width > 0 && bounds.height > 0 && distance > 0) {
+          const viewport = mapViewportRef.current;
+          const centerX = (first.clientX + second.clientX) / 2;
+          const centerY = (first.clientY + second.clientY) / 2;
+          const ratioX = clamp((centerX - bounds.left) / bounds.width, 0, 1);
+          const ratioY = clamp((centerY - bounds.top) / bounds.height, 0, 1);
+          pinchStateRef.current = {
+            pointerIds: [firstId, secondId],
+            distance,
+            focus: {
+              x: viewport.x + ratioX * viewport.width,
+              y: viewport.y + ratioY * viewport.height,
+            },
+            viewport,
+          };
+          dragStateRef.current = null;
+          setIsDragging(true);
+          event.preventDefault();
+          return;
+        }
+      }
+    }
+
+    const viewport = mapViewportRef.current;
+    if (VIEWBOX_WIDTH / viewport.width <= 1.01) return;
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
     dragStateRef.current = {
       pointerId: event.pointerId,
       clientX: event.clientX,
       clientY: event.clientY,
-      viewport: mapViewport,
+      viewport,
     };
     setIsDragging(true);
   }
 
   function handleMapPointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    if (event.pointerType === "touch" && touchPointersRef.current.has(event.pointerId)) {
+      touchPointersRef.current.set(event.pointerId, {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+
+      const pinchState = pinchStateRef.current;
+      if (pinchState) {
+        const first = touchPointersRef.current.get(pinchState.pointerIds[0]);
+        const second = touchPointersRef.current.get(pinchState.pointerIds[1]);
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (first && second && bounds.width > 0 && bounds.height > 0) {
+          const distance = Math.hypot(
+            second.clientX - first.clientX,
+            second.clientY - first.clientY,
+          );
+          const centerX = (first.clientX + second.clientX) / 2;
+          const centerY = (first.clientY + second.clientY) / 2;
+          const next = pinchMapViewport(
+            pinchState.viewport,
+            distance / pinchState.distance,
+            pinchState.focus,
+            {
+              x: (centerX - bounds.left) / bounds.width,
+              y: (centerY - bounds.top) / bounds.height,
+            },
+          );
+          event.preventDefault();
+          mapViewportRef.current = next;
+          setMapViewport(next);
+          return;
+        }
+      }
+    }
+
     const dragState = dragStateRef.current;
     if (!dragState || dragState.pointerId !== event.pointerId) return;
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -878,20 +1020,44 @@ export function NanCoffeeMap({
 
     const deltaX = (event.clientX - dragState.clientX) * (dragState.viewport.width / bounds.width);
     const deltaY = (event.clientY - dragState.clientY) * (dragState.viewport.height / bounds.height);
-    setMapViewport(clampMapViewport({
+    const next = clampMapViewport({
       ...dragState.viewport,
       x: dragState.viewport.x - deltaX,
       y: dragState.viewport.y - deltaY,
-    }));
+    });
+    mapViewportRef.current = next;
+    setMapViewport(next);
   }
 
   function finishMapDrag(event: ReactPointerEvent<SVGSVGElement>) {
-    if (dragStateRef.current?.pointerId !== event.pointerId) return;
+    if (event.pointerType === "touch") {
+      touchPointersRef.current.delete(event.pointerId);
+      if (pinchStateRef.current?.pointerIds.includes(event.pointerId)) {
+        pinchStateRef.current = null;
+        const remaining = [...touchPointersRef.current.entries()][0];
+        if (remaining && VIEWBOX_WIDTH / mapViewportRef.current.width > 1.01) {
+          dragStateRef.current = {
+            pointerId: remaining[0],
+            clientX: remaining[1].clientX,
+            clientY: remaining[1].clientY,
+            viewport: mapViewportRef.current,
+          };
+        } else {
+          dragStateRef.current = null;
+        }
+      } else if (dragStateRef.current?.pointerId === event.pointerId) {
+        dragStateRef.current = null;
+      }
+    } else if (dragStateRef.current?.pointerId === event.pointerId) {
+      dragStateRef.current = null;
+    } else {
+      return;
+    }
+
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    dragStateRef.current = null;
-    setIsDragging(false);
+    setIsDragging(Boolean(dragStateRef.current || pinchStateRef.current));
   }
 
   return (
@@ -964,12 +1130,12 @@ export function NanCoffeeMap({
           </button>
         </div>
         <svg
+          ref={mapCanvasRef}
           id={mapCanvasId}
           className="nan-map__canvas"
           role="img"
           aria-labelledby={`${svgTitleId} ${svgDescriptionId}`}
           viewBox={`${mapViewport.x.toFixed(2)} ${mapViewport.y.toFixed(2)} ${mapViewport.width.toFixed(2)} ${mapViewport.height.toFixed(2)}`}
-          onWheel={handleMapWheel}
           onPointerDown={handleMapPointerDown}
           onPointerMove={handleMapPointerMove}
           onPointerUp={finishMapDrag}
