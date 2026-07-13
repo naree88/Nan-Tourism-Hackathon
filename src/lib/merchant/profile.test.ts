@@ -198,11 +198,13 @@ describe("merchant profile mapping and preview merge", () => {
   });
 
   it("updates an exact normalized bean name without adding a duplicate", () => {
+    const before = structuredClone(currentProfile);
     const proposed = applyMerchantUpdateToProfile(currentProfile, {
       kinds: ["offering"],
       offering: {
         beanName: "  ดอยสวนยาหลวง  ",
         process: "honey",
+        availability: "limited",
         tastingNotes: [],
         tasteProfiles: [],
         brewMethods: [],
@@ -212,9 +214,15 @@ describe("merchant profile mapping and preview merge", () => {
       extractorVersion: "test-v1",
     });
 
+    expect(currentProfile).toEqual(before);
     expect(proposed.offerings).toHaveLength(1);
-    expect(proposed.offerings?.[0]).toMatchObject({ id: "offering-01", process: "honey" });
+    expect(proposed.offerings?.[0]).toMatchObject({
+      id: "offering-01",
+      process: "honey",
+      availability: "limited",
+    });
     expect(proposed.featuredOffering?.id).toBe("offering-01");
+    expect(proposed.featuredOffering?.availability).toBe("limited");
   });
 
   it("keeps every bean across sequential approvals in the local demo", () => {

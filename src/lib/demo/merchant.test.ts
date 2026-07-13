@@ -15,9 +15,9 @@ describe("new finder merchant profile bridge", () => {
       nameTh: "ฟองคำ คอฟฟี่พอยต์",
     });
     expect(profile?.featuredOffering).toMatchObject({
-      beanName: "ดอยหมอกล็อต 01",
+      beanName: "ห้วยโทน จาวา เนเชอรัล 01",
       originProvince: "น่าน",
-      originName: "บ่อเกลือ",
+      originName: "บ้านห้วยโทน อำเภอบ่อเกลือ",
       varietal: "Java",
       process: "natural",
       roastLevel: "light",

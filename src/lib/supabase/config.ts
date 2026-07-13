@@ -29,7 +29,9 @@ export function getAppDataMode(): AppDataMode {
     throw new Error("APP_DATA_MODE must be set explicitly for a production Vercel deployment.");
   }
 
-  return isSupabaseConfigured() ? "supabase" : "demo";
+  // Local development and non-production previews stay isolated from the
+  // connected database unless Supabase mode is explicitly requested.
+  return "demo";
 }
 
 export function isDemoMode() {

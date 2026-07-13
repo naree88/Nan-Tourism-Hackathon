@@ -116,13 +116,13 @@ export const demoCafes = [
       {
         id: "offering-demo-huai-ton-natural",
         cafeId: "cafe-demo-khuang-cloud",
-        name: { th: "บ้านห้วยโท้น ล็อตเดโม N01", en: "Ban Huai Ton Demo Lot N01" },
+        name: { th: "ห้วยโทน จาวา เนเชอรัล 01", en: "Huai Ton Java Natural 01" },
         origin: {
           country: "Thailand",
-          province: "Nan",
-          locality: "Fictional demo lot",
-          farmOrCommunity: "Ban Huai Ton (scenario label only)",
-          producer: "Demo producer — not a real sourcing claim",
+          province: "น่าน",
+          locality: "บ้านห้วยโทน อำเภอบ่อเกลือ",
+          farmOrCommunity: "บ้านห้วยโทน อำเภอบ่อเกลือ",
+          producer: "กลุ่มผู้ปลูกกาแฟบ้านห้วยโทน",
         },
         process: "natural",
         roastLevel: "light",
@@ -620,7 +620,7 @@ export const demoCafeOwnerships = [
 ] satisfies CafeOwnership[];
 
 export const demoMerchantVoiceUpdate =
-  "วันนี้มีเมล็ดดอยหมอกล็อต 01 Natural คั่วอ่อน โทนส้มแมนดารินกับสตรอว์เบอร์รี ใช้ทำ filter ราคาแก้วละ 120 บาท พร้อมเสิร์ฟ";
+  "วันนี้มีเมล็ดห้วยโทน จาวา เนเชอรัล 01 Natural, แหล่งปลูกบ้านห้วยโทน อำเภอบ่อเกลือ, จังหวัดน่าน, ผู้ผลิตกลุ่มผู้ปลูกกาแฟบ้านห้วยโทน, คั่วอ่อน โทนส้มแมนดารินกับสตรอว์เบอร์รี ใช้ทำ filter ราคาแก้วละ 120 บาท พร้อมเสิร์ฟ";
 
 export const demoMerchantDraft = buildMerchantDraft(demoMerchantVoiceUpdate, {
   cafeId: "cafe-finder-demo-01",

@@ -46,6 +46,10 @@ import {
   applyMerchantUpdateToProfile,
   type MerchantProfileSnapshot,
 } from "@/lib/merchant/profile";
+import {
+  MERCHANT_AVAILABILITY_OPTIONS,
+  merchantAvailabilityLabel,
+} from "@/lib/merchant/availability";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Props = {
@@ -486,7 +490,7 @@ export function MerchantDashboard({
                 <div>
                   <strong>{item.beanName || `เมล็ดรายการที่ ${index + 1}`}</strong>
                   <small>
-                    {[item.process, item.roastLevel, item.availability].filter(Boolean).join(" · ") || "ยังไม่ระบุรายละเอียด"}
+                    {[item.process, item.roastLevel, merchantAvailabilityLabel(item.availability)].filter(Boolean).join(" · ") || "ยังไม่ระบุรายละเอียด"}
                   </small>
                 </div>
                 <button
@@ -631,6 +635,21 @@ export function MerchantDashboard({
                     <label className="field"><span className="field-label">Roasted in — โรงคั่ว/พื้นที่</span><input className="input" value={offering.roasterLocation?.locality || ""} onChange={(event) => updateOfferingLocation("roasterLocation", "locality", event.target.value)} placeholder="เช่น เมืองน่าน" /></label>
                     <label className="field"><span className="field-label">Roasted in — จังหวัด</span><input className="input" value={offering.roasterLocation?.province || ""} onChange={(event) => updateOfferingLocation("roasterLocation", "province", event.target.value)} placeholder="เช่น น่าน" /></label>
                     <label className="field"><span className="field-label">ราคาเริ่มต้น (บาท)</span><input className="input" type="number" min="0" value={offering.price?.amount ?? ""} onChange={(event) => { const amount = asOptionalNumber(event.target.value); updateOffering({ price: amount === undefined ? undefined : { amount, currency: "THB" } }); }} /></label>
+                    <label className="field">
+                      <span className="field-label">สถานะพร้อมจำหน่าย</span>
+                      <select
+                        className="select"
+                        value={offering.availability ?? "unknown"}
+                        onChange={(event) => updateOffering({
+                          availability: event.target.value as NonNullable<MerchantOfferingPatch["availability"]>,
+                        })}
+                      >
+                        {MERCHANT_AVAILABILITY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      <small className="field-hint">สถานะนี้จะแสดงบนหน้าร้านหลังจากอนุมัติร่าง</small>
+                    </label>
                     <div className="merchant-taste-editor">
                       <div className="merchant-edit-heading">
                         <div><strong>Taste notes</strong><small>แก้ได้ทั้งภาษาไทยและ English</small></div>

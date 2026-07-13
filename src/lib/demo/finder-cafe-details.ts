@@ -6,7 +6,7 @@ import type {
   RoastLevel,
   TasteProfile,
 } from "../domain/types";
-import { demoFinderCafeRecords } from "./finder-cafes";
+import { demoFinderCafeRecords, finderCafeSpecs } from "./finder-cafes";
 
 export type FinderRecommendedMenu = {
   id: string;
@@ -71,16 +71,6 @@ type MenuSeed = {
 
 type DetailSeed = {
   menus: readonly [MenuSeed, MenuSeed, MenuSeed];
-  originName: LocalizedText;
-  originProvince: string;
-  locality: string;
-  producerOrCommunity: LocalizedText;
-  altitudeMeters: readonly [number, number];
-  varietal: string;
-  tasteNotes: readonly LocalizedText[];
-  brewMethods: readonly BrewMethod[];
-  roasterProvince: string;
-  roasterLocality: string;
   reviewTwo: LocalizedText;
 };
 
@@ -104,23 +94,13 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["เลมอน", "lemon"], ["สดชื่น", "refreshing"]),
       },
       {
-        name: text("ฟองคำฟิลเตอร์ไฟลต์", "Fong Kham Filter Flight"),
+        name: text("ห้วยโทนฟิลเตอร์ไฟลต์", "Huai Ton Filter Flight"),
         description: text("ฟิลเตอร์สองแก้วเล็กเพื่อเทียบอุณหภูมิและความหวานของผลไม้", "Two small filter pours to compare fruit sweetness as they cool."),
         price: 145,
         sensoryTags: tags(["เบอร์รี", "berry"], ["หวานฉ่ำ", "juicy"]),
       },
     ],
-    originName: text("ดอยหมอกล็อต 01", "Misty Highland Lot 01"),
-    originProvince: "น่าน",
-    locality: "บ่อเกลือ",
-    producerOrCommunity: text("กลุ่มผู้ปลูกต้นน้ำเหนือ", "Northern Headwater Growers"),
-    altitudeMeters: [1_300, 1_520],
-    varietal: "Java",
-    tasteNotes: tags(["ส้มแมนดาริน", "mandarin orange"], ["สตรอว์เบอร์รี", "strawberry"], ["น้ำผึ้ง", "honey"]),
-    brewMethods: ["filter", "cold-brew"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
-    reviewTwo: text("นั่งทำงานช่วงเช้ากับฟองคำฟิลเตอร์ไฟลต์ โต๊ะวางโน้ตบุ๊กได้สบายและกาแฟยังหอมเมื่อเย็นลง", "I worked here in the morning with the Fong Kham Filter Flight; the table fit my laptop and the coffee stayed aromatic as it cooled."),
+    reviewTwo: text("นั่งทำงานช่วงเช้ากับห้วยโทนฟิลเตอร์ไฟลต์ โต๊ะวางโน้ตบุ๊กได้สบายและกาแฟยังหอมเมื่อเย็นลง", "I worked here in the morning with the Huai Ton Filter Flight; the table fit my laptop and the coffee stayed aromatic as it cooled."),
   },
   {
     menus: [
@@ -143,16 +123,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["โกโก้", "cacao"], ["ถั่วอบ", "roasted nuts"]),
       },
     ],
-    originName: text("เนินร่มเงาล็อต 02", "Shaded Hillside Lot 02"),
-    originProvince: "เชียงราย",
-    locality: "แม่สรวย",
-    producerOrCommunity: text("เครือข่ายผู้ปลูกร่มเงาต้นน้ำ", "Headwater Shade-Grown Network"),
-    altitudeMeters: [1_180, 1_360],
-    varietal: "Catimor",
-    tasteNotes: tags(["อัลมอนด์", "almond"], ["โกโก้", "cacao"], ["น้ำตาลทรายแดง", "brown sugar"]),
-    brewMethods: ["filter", "espresso"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("งาดำแฟลตไวต์เนียนและไม่หวานเกินไป ส่วนนัตตี้คาราเมลอเมริกาโนยังคงรสกาแฟชัด", "The Black Sesame Flat White was smooth and not overly sweet, while the Nutty Caramel Americano still tasted distinctly of coffee."),
   },
   {
@@ -176,16 +146,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["น้ำผึ้ง", "honey"], ["ชาดอกไม้", "floral tea"]),
       },
     ],
-    originName: text("หุบเขาดอกขาวล็อต 03", "White Blossom Valley Lot 03"),
-    originProvince: "น่าน",
-    locality: "ปัว",
-    producerOrCommunity: text("กลุ่มกาแฟสวนผสมบนดอย", "Highland Mixed-Garden Coffee Group"),
-    altitudeMeters: [1_250, 1_470],
-    varietal: "Typica",
-    tasteNotes: tags(["ดอกส้ม", "orange blossom"], ["ลิ้นจี่", "lychee"], ["น้ำผึ้ง", "honey"]),
-    brewMethods: ["filter", "aeropress"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("มานั่งทำงานพร้อมยูซุฮันนีคอฟฟี่ Wi‑Fi ใช้ประชุมสั้น ๆ ได้และเครื่องดื่มสดชื่นดี", "I worked here with a Yuzu Honey Coffee; the Wi-Fi handled a short call and the drink was refreshing."),
   },
   {
@@ -209,16 +169,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["เชอร์รี", "cherry"], ["โกโก้", "cacao"]),
       },
     ],
-    originName: text("เชิงเขาผลไม้ล็อต 04", "Fruit Ridge Lot 04"),
-    originProvince: "เชียงราย",
-    locality: "แม่ลาว",
-    producerOrCommunity: text("กลุ่มเกษตรกรเชิงเขาตัวอย่าง", "Ridge Growers Collective"),
-    altitudeMeters: [1_150, 1_380],
-    varietal: "Caturra",
-    tasteNotes: tags(["พลัม", "plum"], ["เชอร์รี", "cherry"], ["ช็อกโกแลต", "chocolate"]),
-    brewMethods: ["filter", "espresso"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("แอนแอโรบิกฟิลเตอร์หอมผลไม้ชัดแต่ไม่หมักแรงเกินไป ส่วนพลัมเอสเปรสโซโทนิกดื่มง่ายมาก", "The Anaerobic Filter was clearly fruity without being overly fermented, and the Plum Espresso Tonic was very easy to drink."),
   },
   {
@@ -242,16 +192,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["น้ำตาลทรายแดง", "brown sugar"], ["ถั่ว", "nutty"]),
       },
     ],
-    originName: text("ดอยร่มไม้ล็อต 05", "Forest Shade Lot 05"),
-    originProvince: "น่าน",
-    locality: "ท่าวังผา",
-    producerOrCommunity: text("กลุ่มผู้ปลูกใต้ร่มไม้", "Forest-Canopy Growers"),
-    altitudeMeters: [1_100, 1_320],
-    varietal: "Catimor",
-    tasteNotes: tags(["เฮเซลนัต", "hazelnut"], ["โกโก้", "cacao"], ["คาราเมลเข้ม", "dark caramel"]),
-    brewMethods: ["espresso", "filter", "mokapot"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("โรสเต็ดนัตลาเต้หอมถั่วอบและเข้ากับของกินช่วงเย็น ส่วนไนต์มาร์เก็ตโคลด์บรูว์บอดี้แน่นสมชื่อ", "The Roasted Nut Latte smelled of toasted nuts and paired well with an evening snack; the Night Market Cold Brew was satisfyingly full-bodied."),
   },
   {
@@ -275,16 +215,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["ชาดำ", "black tea"], ["ดอกขาว", "white blossom"]),
       },
     ],
-    originName: text("สวนดอกหอมล็อต 06", "Fragrant Garden Lot 06"),
-    originProvince: "เชียงราย",
-    locality: "แม่จัน",
-    producerOrCommunity: text("กลุ่มสวนกาแฟวนเกษตร", "Agroforestry Coffee Gardens"),
-    altitudeMeters: [1_220, 1_450],
-    varietal: "Bourbon",
-    tasteNotes: tags(["กุหลาบ", "rose"], ["ชมพู่", "rose apple"], ["ชาดำ", "black tea"]),
-    brewMethods: ["filter", "cold-brew"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("พกโน้ตบุ๊กมาทำงานครึ่งวันกับโรสแอปเปิลฟิลเตอร์ มุมโต๊ะสงบและกาแฟคั่วอ่อนดื่มได้นาน", "I brought my laptop for half a day with a Rose Apple Filter; the table corner was calm and the light roast was pleasant to sip slowly."),
   },
   {
@@ -308,16 +238,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["พีช", "peach"], ["ชาดำ", "black tea"]),
       },
     ],
-    originName: text("เนินชาผลไม้ล็อต 07", "Fruit Tea Hill Lot 07"),
-    originProvince: "น่าน",
-    locality: "สันติสุข",
-    producerOrCommunity: text("ชุมชนผู้ปลูกสวนป่าต้นน้ำ", "Headwater Forest-Garden Community"),
-    altitudeMeters: [1_280, 1_500],
-    varietal: "Typica",
-    tasteNotes: tags(["พีช", "peach"], ["ส้มโอ", "pomelo"], ["ชาดำ", "black tea"]),
-    brewMethods: ["filter", "aeropress"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("รีดดิ้งรูมฟิลเตอร์สะอาดและมีกลิ่นพีช เหมาะกับจิบช้า ๆ ส่วนซิตรัสอเมริกาโนสดชื่นกว่า", "The Reading Room Filter was clean and peachy for slow sipping, while the Citrus Americano was more refreshing."),
   },
   {
@@ -341,16 +261,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["ถั่วอบ", "roasted nuts"], ["โกโก้", "cacao"]),
       },
     ],
-    originName: text("หุบเขาน้ำผึ้งล็อต 08", "Honey Valley Lot 08"),
-    originProvince: "เชียงราย",
-    locality: "เวียงป่าเป้า",
-    producerOrCommunity: text("เครือข่ายสวนกาแฟครอบครัว", "Family Coffee Garden Network"),
-    altitudeMeters: [1_100, 1_300],
-    varietal: "Catimor",
-    tasteNotes: tags(["แมคคาเดเมีย", "macadamia"], ["โกโก้", "cacao"], ["กากน้ำตาล", "molasses"]),
-    brewMethods: ["espresso", "filter", "mokapot"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("มานั่งทำงานก่อนเย็น สั่งแมคคาเดเมียฮันนีลาเต้ โต๊ะกว้างพอสำหรับโน้ตบุ๊กและรสไม่หวานจัด", "I worked here before evening with a Macadamia Honey Latte; the table fit my laptop and the drink was not too sweet."),
   },
   {
@@ -374,25 +284,15 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["มะลิ", "jasmine"], ["องุ่นขาว", "white grape"]),
       },
     ],
-    originName: text("ดอยชาขาวล็อต 09", "White Tea Highland Lot 09"),
-    originProvince: "น่าน",
-    locality: "เชียงกลาง",
-    producerOrCommunity: text("กลุ่มผู้ปลูกเชิงดอยรุ่นใหม่", "New-Generation Highland Growers"),
-    altitudeMeters: [1_350, 1_580],
-    varietal: "Java",
-    tasteNotes: tags(["มะลิ", "jasmine"], ["องุ่นขาว", "white grape"], ["ยูซุ", "yuzu"]),
-    brewMethods: ["filter", "aeropress"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("ไนต์วอล์กฟิลเตอร์กลิ่นมะลิชัด พอเย็นลงเจอองุ่นขาว ส่วนแจสมินยูซุคอฟฟี่ดื่มสนุกกว่า", "The Night Walk Filter was distinctly jasmine-like and revealed white grape as it cooled; the Jasmine Yuzu Coffee was the more playful drink."),
   },
   {
     menus: [
       {
-        name: text("วอเตอร์เมลอนโคลด์บรูว์", "Watermelon Cold Brew"),
-        description: text("โคลด์บรูว์กับแตงโม ให้ความหวานฉ่ำและปลายสะอาด", "Cold brew with watermelon for juicy sweetness and a clean finish."),
+        name: text("เรดเกรปโคลด์บรูว์", "Red Grape Cold Brew"),
+        description: text("โคลด์บรูว์กับองุ่นแดงและส้มแมนดาริน ให้ความหวานฉ่ำและปลายสะอาด", "Cold brew with red grape and mandarin for juicy sweetness and a clean finish."),
         price: 115,
-        sensoryTags: tags(["แตงโม", "watermelon"], ["ฉ่ำ", "juicy"]),
+        sensoryTags: tags(["องุ่นแดง", "red grape"], ["ฉ่ำ", "juicy"]),
       },
       {
         name: text("แมนดารินเอสเปรสโซโทนิก", "Mandarin Espresso Tonic"),
@@ -402,21 +302,11 @@ const detailSeeds: readonly DetailSeed[] = [
       },
       {
         name: text("ริเวอร์ไซด์ฟิลเตอร์", "Riverside Filter"),
-        description: text("ฟิลเตอร์บอดี้นุ่ม กลิ่นแตงโม เชอร์รี และโกโก้บาง ๆ", "Soft-bodied filter with watermelon, cherry, and a touch of cacao."),
+        description: text("ฟิลเตอร์บอดี้นุ่ม กลิ่นองุ่นแดง เชอร์รี และโกโก้บาง ๆ", "Soft-bodied filter with red grape, cherry, and a touch of cacao."),
         price: 130,
-        sensoryTags: tags(["เชอร์รี", "cherry"], ["แตงโม", "watermelon"]),
+        sensoryTags: tags(["เชอร์รี", "cherry"], ["องุ่นแดง", "red grape"]),
       },
     ],
-    originName: text("หุบเขาผลไม้ฉ่ำล็อต 10", "Juicy Valley Lot 10"),
-    originProvince: "เชียงราย",
-    locality: "พาน",
-    producerOrCommunity: text("กลุ่มแปรรูปกาแฟผลไม้", "Fruit-Process Coffee Collective"),
-    altitudeMeters: [1_180, 1_420],
-    varietal: "Caturra",
-    tasteNotes: tags(["แตงโม", "watermelon"], ["แมนดาริน", "mandarin"], ["เชอร์รี", "cherry"]),
-    brewMethods: ["filter", "cold-brew", "espresso"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("เปิดโน้ตบุ๊กทำงานริมหน้าต่างพร้อมริเวอร์ไซด์ฟิลเตอร์ บรรยากาศช่วงสายเหมาะกับงานที่ต้องใช้สมาธิ", "I worked by the window with a Riverside Filter; the late-morning atmosphere suited focused work."),
   },
   {
@@ -440,16 +330,6 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["คาราเมล", "caramel"], ["ผลไม้แห้ง", "dried fruit"]),
       },
     ],
-    originName: text("สวนถั่วโกโก้ล็อต 11", "Cacao Nut Garden Lot 11"),
-    originProvince: "น่าน",
-    locality: "ทุ่งช้าง",
-    producerOrCommunity: text("กลุ่มสวนกาแฟครอบครัวบนดอย", "Highland Family Coffee Gardens"),
-    altitudeMeters: [1_050, 1_280],
-    varietal: "Catimor",
-    tasteNotes: tags(["ถั่วลิสง", "peanut"], ["โกโก้", "cacao"], ["คาราเมล", "caramel"]),
-    brewMethods: ["espresso", "filter", "mokapot"],
-    roasterProvince: "น่าน",
-    roasterLocality: "เมืองน่าน",
     reviewTwo: text("โกโก้นัตเอสเปรสโซเข้มแต่ไม่ไหม้ ดาร์กเนเชอรัลฟิลเตอร์มีปลายผลไม้แห้งช่วยให้แก้วไม่หนักเกินไป", "The Cacao Nut Espresso was bold without tasting burnt, and the Dark Natural Filter's dried-fruit finish kept it from feeling too heavy."),
   },
   {
@@ -473,25 +353,15 @@ const detailSeeds: readonly DetailSeed[] = [
         sensoryTags: tags(["สมุนไพร", "herbal"], ["ดอกขาว", "white blossom"]),
       },
     ],
-    originName: text("สวนชาขาวล็อต 12", "White Tea Garden Lot 12"),
-    originProvince: "เชียงราย",
-    locality: "เทิง",
-    producerOrCommunity: text("กลุ่มวนเกษตรเชิงเขา", "Foothill Agroforestry Group"),
-    altitudeMeters: [1_300, 1_550],
-    varietal: "Typica",
-    tasteNotes: tags(["ชาขาว", "white tea"], ["ส้มโอ", "pomelo"], ["ดอกส้ม", "orange blossom"]),
-    brewMethods: ["filter", "cold-brew"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("ไวต์ทีฟิลเตอร์กลิ่นบางและสะอาด ส้มโอเอสเปรสโซโซดาขมปลายนิดเดียวแต่สดชื่นดี", "The White Tea Filter was delicate and clean; the Pomelo Espresso Soda had just a little pithy bitterness and was refreshing."),
   },
   {
     menus: [
       {
-        name: text("สตรอว์เบอร์รีฮันนีคอฟฟี่", "Strawberry Honey Coffee"),
-        description: text("กาแฟน้ำผึ้งกับสตรอว์เบอร์รี เปรี้ยวหวานและบอดี้นุ่ม", "Honey coffee with strawberry, balanced sweetness, and a soft body."),
+        name: text("เรดฟรุตฮันนีคอฟฟี่", "Red Fruit Honey Coffee"),
+        description: text("กาแฟน้ำผึ้งกับผลไม้แดง เปรี้ยวหวานและบอดี้นุ่ม", "Honey coffee with red fruit, balanced sweetness, and a soft body."),
         price: 120,
-        sensoryTags: tags(["สตรอว์เบอร์รี", "strawberry"], ["น้ำผึ้ง", "honey"]),
+        sensoryTags: tags(["ผลไม้แดง", "red fruit"], ["น้ำผึ้ง", "honey"]),
       },
       {
         name: text("ฟอเรสต์ฟรุตโทนิก", "Forest Fruit Tonic"),
@@ -501,27 +371,18 @@ const detailSeeds: readonly DetailSeed[] = [
       },
       {
         name: text("ฮันนีฟอเรสต์ฟิลเตอร์", "Honey Forest Filter"),
-        description: text("ฟิลเตอร์หวานนุ่ม กลิ่นสตรอว์เบอร์รีและคาราเมล", "Sweet, soft filter with strawberry and caramel notes."),
+        description: text("ฟิลเตอร์หวานนุ่ม กลิ่นผลไม้แดงและคาราเมล", "Sweet, soft filter with red-fruit and caramel notes."),
         price: 130,
-        sensoryTags: tags(["สตรอว์เบอร์รี", "strawberry"], ["คาราเมล", "caramel"]),
+        sensoryTags: tags(["ผลไม้แดง", "red fruit"], ["คาราเมล", "caramel"]),
       },
     ],
-    originName: text("ป่าต้นน้ำล็อต 13", "Headwater Forest Lot 13"),
-    originProvince: "น่าน",
-    locality: "ภูเพียง",
-    producerOrCommunity: text("กลุ่มผู้ปลูกกาแฟรักษ์ป่าต้นแบบ", "Forest-Friendly Growers Collective"),
-    altitudeMeters: [1_200, 1_430],
-    varietal: "Java",
-    tasteNotes: tags(["สตรอว์เบอร์รี", "strawberry"], ["เลมอน", "lemon"], ["คาราเมล", "caramel"]),
-    brewMethods: ["filter", "aeropress", "espresso"],
-    roasterProvince: "เชียงราย",
-    roasterLocality: "โรงคั่วคู่ค้า",
     reviewTwo: text("ใช้เวลาทำงานกับฮันนีฟอเรสต์ฟิลเตอร์หนึ่งชั่วโมง มุมด้านในสงบและกาแฟหวานนุ่มแม้ปล่อยให้เย็น", "I worked for an hour with a Honey Forest Filter; the inside corner was calm and the coffee stayed softly sweet as it cooled."),
   },
 ] as const;
 
 function buildDetail(seed: DetailSeed, index: number): FinderCafeDetail {
   const finderRecord = demoFinderCafeRecords[index];
+  const coffee = finderCafeSpecs[index];
   const { cafe, unseenNearby } = finderRecord;
   const offering = cafe.offerings[0];
   const sequence = String(index + 1).padStart(2, "0");
@@ -543,30 +404,30 @@ function buildDetail(seed: DetailSeed, index: number): FinderCafeDetail {
     cafeId: cafe.id,
     recommendedMenus,
     singleOrigin: {
-      name: seed.originName,
+      name: coffee.beanName,
       origin: {
         country: "Thailand",
-        province: seed.originProvince,
-        locality: seed.locality,
+        province: coffee.originProvince,
+        locality: coffee.originLocality,
       },
-      producerOrCommunity: seed.producerOrCommunity,
+      producerOrCommunity: coffee.producerOrCommunity,
       altitudeMeters: {
-        min: seed.altitudeMeters[0],
-        max: seed.altitudeMeters[1],
+        min: coffee.altitudeMeters[0],
+        max: coffee.altitudeMeters[1],
       },
-      varietal: seed.varietal,
+      varietal: coffee.varietal,
       process: offering.process,
       processingLocation: {
-        province: seed.originProvince,
-        locality: seed.locality,
+        province: coffee.processingProvince,
+        locality: coffee.processingLocality,
       },
       roastLevel: offering.roastLevel,
-      tasteNotes: seed.tasteNotes,
+      tasteNotes: coffee.tastingNotes,
       tasteProfiles: offering.tasteProfiles,
-      brewMethods: seed.brewMethods,
+      brewMethods: coffee.brewMethods,
       roasterLocation: {
-        province: seed.roasterProvince,
-        locality: seed.roasterLocality,
+        province: coffee.roasterProvince,
+        locality: coffee.roasterLocality,
       },
     },
     customerReviews: [
@@ -575,8 +436,8 @@ function buildDetail(seed: DetailSeed, index: number): FinderCafeDetail {
         reviewerName: `ผู้เดินทาง ${sequence}A`,
         rating: 5,
         body: text(
-          `แวะหลังเดินชม${unseenNearby}แล้วสั่ง${firstMenu.name.th} กลิ่น${firstMenu.sensoryTags[0].th}ชัดและดื่มสดชื่น`,
-          `I stopped after visiting ${unseenNearby} and ordered the ${firstMenu.name.en}; its ${firstMenu.sensoryTags[0].en} note was clear and refreshing.`,
+          `แวะหลังเดินชม${unseenNearby}แล้วสั่ง${firstMenu.name.th} กลิ่น${firstMenu.sensoryTags[0].th}ชัดและเข้ากับเมนู`,
+          `I stopped after visiting ${unseenNearby} and ordered the ${firstMenu.name.en}; its ${firstMenu.sensoryTags[0].en} note was clear and suited the drink.`,
         ),
         referencedMenuIds: [firstMenu.id],
         mentionsUnseenNearby: true,

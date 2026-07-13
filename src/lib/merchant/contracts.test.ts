@@ -120,6 +120,40 @@ describe("merchant generation provenance contract", () => {
   });
 });
 
+describe("Single Origin availability contract", () => {
+  const baseUpdate = {
+    kinds: ["offering"],
+    offering: {
+      beanName: "ดอยสวนยาหลวง",
+      tastingNotes: [],
+      tasteProfiles: [],
+      brewMethods: [],
+    },
+    fieldEvidence: [],
+    unresolvedFields: [],
+    extractorVersion: "test-v1",
+  } as const;
+
+  it.each(["available", "limited", "unavailable", "unknown"] as const)(
+    "accepts the %s availability status",
+    (availability) => {
+      const update = {
+        ...baseUpdate,
+        offering: { ...baseUpdate.offering, availability },
+      };
+
+      expect(structuredMerchantUpdateSchema.parse(update)).toEqual(update);
+    },
+  );
+
+  it("rejects an unsupported availability status", () => {
+    expect(structuredMerchantUpdateSchema.safeParse({
+      ...baseUpdate,
+      offering: { ...baseUpdate.offering, availability: "preorder-only" },
+    }).success).toBe(false);
+  });
+});
+
 describe("sold-out Single Origin removal contract", () => {
   const baseUpdate = {
     kinds: ["offering"],

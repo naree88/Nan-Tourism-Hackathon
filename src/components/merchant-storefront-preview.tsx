@@ -11,6 +11,7 @@ import {
   Video,
   Wifi,
 } from "lucide-react";
+import { merchantAvailabilityLabel } from "@/lib/merchant/availability";
 import type { MerchantProfileSnapshot } from "@/lib/merchant/profile";
 
 export type MerchantStorefrontPreviewProps = {
@@ -38,13 +39,6 @@ const roastLabels: Record<string, string> = {
   "medium-dark": "คั่วกลางเข้ม",
   dark: "คั่วเข้ม",
   unknown: "ยังไม่ระบุ",
-};
-
-const availabilityLabels: Record<string, string> = {
-  available: "พร้อมเสิร์ฟ",
-  limited: "มีจำนวนจำกัด",
-  unavailable: "ยังไม่พร้อมเสิร์ฟ",
-  unknown: "รอยืนยันสถานะ",
 };
 
 const wifiLabels: Record<string, string> = {
@@ -211,7 +205,7 @@ export function MerchantStorefrontPreview({
                     {offering.processingLocation ? <div><dt>Processed in</dt><dd>{[offering.processingLocation.locality, offering.processingLocation.province].filter(Boolean).join(", ")}</dd></div> : null}
                     {offering.roasterLocation ? <div><dt>Roasted in</dt><dd>{[offering.roasterLocation.locality, offering.roasterLocation.province].filter(Boolean).join(", ")}</dd></div> : null}
                     <div><dt>Brew</dt><dd>{offering.brewMethods.length ? offering.brewMethods.join(", ") : "ยังไม่ระบุ"}</dd></div>
-                    <div><dt>Availability</dt><dd>{availabilityLabels[offering.availability || "unknown"]}</dd></div>
+                    <div><dt>Availability</dt><dd>{merchantAvailabilityLabel(offering.availability)}</dd></div>
                   </dl>
 
                   {offering.tastingNotes.length ? (

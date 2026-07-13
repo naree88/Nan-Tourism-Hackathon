@@ -9,20 +9,21 @@ import {
 } from "./merchant";
 
 describe("merchant co-pilot rules", () => {
-  it("extracts the linked finder-cafe example without inferring an unspoken Nan origin", () => {
+  it("extracts the linked finder-cafe example with its explicit Nan origin", () => {
     const update = extractMerchantUpdate(demoMerchantVoiceUpdate);
 
     expect(update.kinds).toContain("offering");
     expect(update.offering).toMatchObject({
-      beanName: "ดอยหมอกล็อต 01",
-      originName: "ดอยหมอกล็อต 01",
+      beanName: "ห้วยโทน จาวา เนเชอรัล 01",
+      originName: "บ้านห้วยโทน อำเภอบ่อเกลือ",
+      originProvince: "น่าน",
+      producer: "กลุ่มผู้ปลูกกาแฟบ้านห้วยโทน",
       process: "natural",
       roastLevel: "light",
       brewMethods: ["filter"],
       price: { amount: 120, currency: "THB" },
       availability: "available",
     });
-    expect(update.offering?.originProvince).toBeUndefined();
     expect(update.offering?.tastingNotes.map((note) => note.en)).toEqual(["strawberry", "orange"]);
     expect(update.unresolvedFields).not.toContain("offering.producer");
     expect(update.unresolvedFields).not.toContain("offering.originName");

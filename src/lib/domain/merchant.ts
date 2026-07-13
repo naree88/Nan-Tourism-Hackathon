@@ -47,7 +47,8 @@ interface Extracted<T> {
 }
 
 const NAME_TRANSLATIONS: Record<string, string> = {
-  "บ้านห้วยโท้น": "Ban Huai Ton",
+  "บ้านห้วยโทน": "Ban Huai Ton",
+  "ห้วยโทน จาวา เนเชอรัล 01": "Huai Ton Java Natural 01",
 };
 
 const NOTE_DICTIONARY: Array<{ terms: string[]; value: LocalizedText; profile: TasteProfile }> = [

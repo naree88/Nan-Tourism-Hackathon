@@ -5,7 +5,11 @@ import {
   finderCafeDetailById,
   getFinderCafeDetail,
 } from "./finder-cafe-details";
-import { demoFinderCafeRecords, demoFinderCafes } from "./finder-cafes";
+import {
+  demoFinderCafeRecords,
+  demoFinderCafes,
+  finderCafeSpecs,
+} from "./finder-cafes";
 
 const workWords = /ทำงาน|โน้ตบุ๊ก|ประชุม/;
 
@@ -72,9 +76,10 @@ describe("finder cafe detail fixtures", () => {
   });
 
   it("keeps each single origin coherent with its cafe filters and Nan bean badges", () => {
-    for (const cafe of demoFinderCafes) {
+    for (const [index, cafe] of demoFinderCafes.entries()) {
       const detail = getFinderCafeDetail(cafe.id);
       const offering = cafe.offerings[0];
+      const spec = finderCafeSpecs[index];
 
       expect(detail).toBeDefined();
       if (!detail) continue;
@@ -82,13 +87,16 @@ describe("finder cafe detail fixtures", () => {
       expect(detail.singleOrigin.process).toBe(offering.process);
       expect(detail.singleOrigin.roastLevel).toBe(offering.roastLevel);
       expect(detail.singleOrigin.tasteProfiles).toEqual(offering.tasteProfiles);
+      expect(detail.singleOrigin.name).toEqual(offering.name);
+      expect(detail.singleOrigin.origin.province).toBe(offering.origin.province);
+      expect(detail.singleOrigin.origin.locality).toBe(offering.origin.locality);
       expect(detail.singleOrigin.brewMethods).toContain("filter");
       expect(detail.singleOrigin.name.th.trim()).not.toBe("");
       expect(detail.singleOrigin.origin.country).toBe("Thailand");
       expect(detail.singleOrigin.origin.locality.trim()).not.toBe("");
       expect(detail.singleOrigin.processingLocation).toEqual({
-        province: detail.singleOrigin.origin.province,
-        locality: detail.singleOrigin.origin.locality,
+        province: spec.processingProvince,
+        locality: spec.processingLocality,
       });
       expect(detail.singleOrigin.producerOrCommunity.th.trim()).not.toBe("");
       expect(detail.singleOrigin.altitudeMeters.min).toBeGreaterThan(0);
@@ -101,9 +109,15 @@ describe("finder cafe detail fixtures", () => {
       const isNanGrown = cafe.badges.includes("nan-grown-beans");
       const isNanRoasted = cafe.badges.includes("nan-roasted");
       expect(detail.singleOrigin.origin.province === "น่าน").toBe(isNanGrown);
-      expect(detail.singleOrigin.processingLocation.province === "น่าน").toBe(isNanGrown);
       expect(detail.singleOrigin.roasterLocation.province === "น่าน").toBe(isNanRoasted);
     }
+
+    expect(
+      demoFinderCafeDetails.some(
+        (detail) => detail.singleOrigin.processingLocation.locality
+          !== detail.singleOrigin.origin.locality,
+      ),
+    ).toBe(true);
   });
 
   it("anchors reviews to that cafe's menus, nearby place, and workation context", () => {
@@ -133,12 +147,35 @@ describe("finder cafe detail fixtures", () => {
     }
   });
 
-  it("does not reuse identifying copy from the supplied packaging examples", () => {
+  it("uses the referenced Nan coffee areas with corrected names and spelling", () => {
+    const nanOrigins = demoFinderCafeDetails
+      .map((detail) => detail.singleOrigin)
+      .filter((origin) => origin.origin.province === "น่าน");
+
+    expect(nanOrigins.map((origin) => origin.origin.locality)).toEqual([
+      "บ้านห้วยโทน อำเภอบ่อเกลือ",
+      "บ้านสันเจริญ อำเภอท่าวังผา",
+      "อำเภอแม่จริม",
+      "บ้านสะจุก–สะเกี้ยง ตำบลขุนน่าน อำเภอเฉลิมพระเกียรติ",
+      "บ้านมณีพฤกษ์ อำเภอทุ่งช้าง",
+      "อำเภอนาน้อย",
+      "บ้านห้วยเลา อำเภอสองแคว",
+    ]);
+    expect(new Set(nanOrigins.map((origin) => origin.varietal))).toEqual(
+      new Set(["Java", "Catimor", "Robusta", "Geisha"]),
+    );
+
+    const serialized = JSON.stringify(nanOrigins);
+    expect(serialized).not.toContain("บ้านห้วยโท้น");
+    expect(serialized).not.toContain("บ้านศพขุน");
+    expect(serialized).not.toContain("บ้านห้วยเหล่า");
+    expect(serialized).not.toContain("Cartimor");
+  });
+
+  it("does not reuse brand-identifying copy from the supplied packaging examples", () => {
     const serialized = JSON.stringify(demoFinderCafeDetails).toLowerCase();
 
     expect(serialized).not.toContain("single origin store");
-    expect(serialized).not.toContain("suan ya luang");
-    expect(serialized).not.toContain("mani phruek");
     expect(serialized).not.toContain("ching java");
   });
 });

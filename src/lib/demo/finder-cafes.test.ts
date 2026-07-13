@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   demoFinderCafeRecords,
   demoFinderCafes,
+  finderCafeSpecs,
   unseenNearbyForFinderCafe,
 } from "./finder-cafes";
 
@@ -99,9 +100,17 @@ describe("finder cafe fixtures", () => {
   });
 
   it("keeps the bean origin consistent with the Nan-grown badge", () => {
-    for (const cafe of demoFinderCafes) {
+    for (const [index, cafe] of demoFinderCafes.entries()) {
       const isNanGrown = cafe.badges.includes("nan-grown-beans");
-      expect(cafe.offerings[0].origin.province === "Nan").toBe(isNanGrown);
+      const offering = cafe.offerings[0];
+      const spec = finderCafeSpecs[index];
+
+      expect(offering.origin.province === "น่าน").toBe(isNanGrown);
+      expect(offering.name).toEqual(spec.beanName);
+      expect(offering.origin.locality).toBe(spec.originLocality);
+      expect(offering.origin.producer).toBe(spec.producerOrCommunity.th);
+      expect(offering.brewMethods).toEqual(spec.brewMethods);
+      expect(offering.tastingNotes).toEqual(spec.tastingNotes);
     }
   });
 
