@@ -1,186 +1,237 @@
 # Nan Coffee, Please
 
-Nan Coffee, Please is a Thai-first, mobile-first coffee discovery MVP for Nan. It demonstrates an explainable Coffee Trail for travelers and a human-approved update flow for independent cafe owners. The app runs without external credentials and never presents its fictional cafe fixtures as real businesses.
+แพลตฟอร์มค้นหาร้านกาแฟน่านสำหรับนักท่องเที่ยว และ Merchant co-pilot ที่ช่วยเจ้าของร้านอัปเดตหน้าร้านด้วยข้อความ เสียง หรือรูปถ่าย โดยทุกการเปลี่ยนแปลงต้องผ่านการตรวจและอนุมัติก่อนเผยแพร่
 
-## What the demo proves
+> Thai-first · Mobile-first · Nan coffee discovery · Human-approved AI
 
-The complete demo outcome is:
+## Live MVP
 
-1. A traveler can add zero, one, or several ordered places in Nan by name, coordinates, or an explicitly consented Current location.
-2. Every search field is optional: transport context, Coffee Processing, Nan-grown/Nan-roasted coffee, Taste Note, roast level, and Workation.
-3. With no filters, the home page shows every finder cafe fixture. Populated categories are combined deterministically, without an LLM.
-4. The map uses the real Nan province boundary and plots selected places plus the filtered cafe coordinates.
-5. One selected place limits cafes to 15 km. Several places also include cafes in a 5 km corridor along each consecutive route segment, even when they are more than 15 km from both endpoints.
-6. Each of the 13 finder cafes opens a detail page with three recommended menus, complete Single Origin metadata, contextual customer reviews, and Workation-only internet metrics.
-7. The merchant route links one MVP cafe and accepts text, Thai voice transcript, or one menu/bean/speed-test photo. It always creates a storefront draft for owner review before publishing.
+- Production: [nan-tourism-hackathon.vercel.app](https://nan-tourism-hackathon.vercel.app)
+- ค้นหาร้านกาแฟ: [หน้าแรก](https://nan-tourism-hackathon.vercel.app/)
+- ร้านฟองคำ คอฟฟี่พอยต์: [หน้าร้านตัวอย่าง](https://nan-tourism-hackathon.vercel.app/cafes/finder-demo-01)
+- เจ้าของร้าน: [Demo login](https://nan-tourism-hackathon.vercel.app/login?next=/merchant)
+- Source code: [naree88/Nan-Tourism-Hackathon](https://github.com/naree88/Nan-Tourism-Hackathon)
 
-No LLM or live routing service is needed for this story. Parsing, merchant extraction, and ranking are deterministic and grounded in the displayed fixture data.
+## ทดลองในฐานะกรรมการ
 
-## Data truth boundary
+หน้าเที่ยวใช้งานได้ทันทีโดยไม่ต้องเข้าสู่ระบบ ส่วนหน้าจัดการร้านใช้บัญชี MVP ที่ตั้งใจเปิดเผยสำหรับการตัดสินเท่านั้น
 
-### Cafe fixtures
+| | ค่า |
+|---|---|
+| ร้าน | ฟองคำ คอฟฟี่พอยต์ |
+| Username | `fongkham-demo` |
+| Password | `NanCoffee2026!` |
 
-The home-page finder has **13 finder cafe fixtures** at the coordinates in [finder-cafes.ts](src/lib/demo/finder-cafes.ts). They cover every supported processing, taste, roast, Nan-grown/Nan-roasted, and Workation state, plus all supplied Unseen Nearby pair labels. Each finder card links to a generated cafe detail route backed by [finder-cafe-details.ts](src/lib/demo/finder-cafe-details.ts).
+ประโยคสำหรับทดสอบ Merchant co-pilot:
 
-The three original public-profile fixtures remain available for the legacy cafe, merchant, check-in, and Coffee Trail flows:
+> วันนี้มีเมล็ดห้วยโทน จาวา เนเชอรัล 01 Natural แหล่งปลูกบ้านห้วยโทน อำเภอบ่อเกลือ จังหวัดน่าน ผู้ผลิตกลุ่มผู้ปลูกกาแฟบ้านห้วยโทน คั่วอ่อน โทนส้มแมนดาริน สตรอว์เบอร์รี และน้ำผึ้ง ชงแบบ Filter หรือ Cold Brew ราคาแก้วละ 150 บาท และมีจำนวนจำกัด
 
-These are product fixtures, not real businesses:
+ขั้นตอนเดโมสั้น ๆ:
 
-| Fixture | Purpose |
-| --- | --- |
-| ข่วงคลาวด์ คอฟฟี่แล็บ / Khuang Cloud Coffee Lab | Fruity Nan-grown-bean and Workation Friendly scenario |
-| โกลเดนลูม เวิร์กรูม / Golden Loom Workroom | Workation and New discovery scenario |
-| ฟองคำ โกโก้คอร์เนอร์ / Fong Kham Cocoa Corner | Chocolate-forward quick-takeaway scenario |
+1. เข้าสู่ระบบด้วยบัญชีด้านบน
+2. พิมพ์ประโยคเดโม หรือแนบรูปเมล็ดกาแฟ JPEG/PNG/WebP ไม่เกิน 2 MB
+3. กดสร้างร่าง แล้วตรวจข้อมูลที่ AI อ่านได้
+4. แก้ไขรายละเอียดใน Preview ได้ก่อนกดอนุมัติ
+5. เมล็ดใหม่จะปรากฏเป็นรายการใหม่ใน Single Origin Coffee ของหน้าร้าน
 
-All cafe names, pins, beans, menus, prices, availability, hours, internet reports, reviews, and route estimates in these fixture sets are test data and must not be used for real travel. The home-page Nan boundary and administrative place index are generated from the source repositories credited on the map.
+## สิ่งที่ MVP แสดงให้เห็น
 
-### Exactly three real, source-checked Unseen places
+### 1. นักท่องเที่ยวค้นหาร้านที่เข้ากับเส้นทาง
 
-The fixture records say these names and coordinates were source-checked on **11 July 2026**:
+- เพิ่มสถานที่ได้ 0, 1 หรือหลายจุด ด้วยชื่อสถานที่ พิกัด หรือ Current location
+- ทุกตัวกรองเป็น optional; ไม่เลือกอะไรจะแสดงร้านกาแฟตัวอย่างทั้ง 13 ร้าน
+- เลือกวิธีเดินทาง: รถยนต์ จักรยาน หรือเดิน
+- เลือกกาแฟน่าน: เมล็ดปลูกในน่าน หรือคั่วในน่าน
+- กรอง Coffee Processing, Taste Note, ระดับการคั่ว และ Workation
+- ร้านปกติต้องอยู่ไม่เกิน 15 กม. จากจุดที่เลือก
+- เมื่อมีหลายจุด ระบบเพิ่มร้านที่อยู่ใน corridor ±5 กม. ระหว่างจุดต่อเนื่อง แม้อยู่นอกรัศมีของปลายทาง
+- การ์ดร้านแสดงระยะจากชื่อสถานที่จริง และเวลาเดินทางโดยประมาณที่คำนวณจากรถยนต์ 80, จักรยาน 15 และเดิน 5 กม./ชม.
+- แผนที่จังหวัดน่านรองรับปุ่มซูม, mouse wheel, pan และ pinch บนมือถือ สูงสุด 64× หรือ 6,400%
+- ใต้แผนที่มี “รายละเอียดจุดบนแผนที่” เพื่ออ่านคำอธิบายแต่ละตำแหน่งโดยไม่ใช้แผนที่ซ้ำ
 
-| Place | Stored primary source | Verification limit |
-| --- | --- | --- |
-| วัดหัวข่วง / Wat Hua Khuang | [Tourism Authority of Thailand: Nan 24 hrs](https://thai.tourismthailand.org/Articles/nan-24-hrs) | Name/context and coordinates checked; no live hours or access status |
-| วัดศรีพันต้น / Wat Si Phan Ton | [Tourism Authority of Thailand: Nan 24 hrs](https://thai.tourismthailand.org/Articles/nan-24-hrs) | Name/context and coordinates checked; no live hours or access status |
-| โฮงเจ้าฟองคำ / Hong Chao Fong Kham | [Tourism Authority of Thailand: Nan and Phayao](https://www.tourismthailand.org/Articles/nan-and-phayao-cheap-but-charming-havens-2) | Name/context and coordinates checked; museum access must be rechecked |
+### 2. หน้าร้านช่วยโปรโมตกาแฟน่าน
 
-The secondary coordinate-corroboration URLs are stored in [the TypeScript fixture](src/lib/demo/data.ts) and [the SQL seed](supabase/seed.sql). Opening, weather, road/access, and real-time suitability were not verified. Cafe-to-place distances and travel times are fictional UI estimates.
+- Recommended Menu พร้อมราคาและความเชื่อมโยงกับเมล็ดเด่น
+- รองรับ Single Origin Coffee หลายล็อตในร้านเดียว
+- แสดงแหล่งปลูก, producer, altitude, varietal, process, processed in, roast, roasted in, taste notes, วิธีชง และ availability
+- Coffee Origin Trace เลือกเฉพาะเมล็ดที่ปลูกในจังหวัดน่าน โดยให้เมล็ดน่านที่เจ้าของร้านอนุมัติล่าสุดมาก่อน
+- Workation แสดง download, upload และ ping เมื่อร้านมีข้อมูล
+- Customer Reviews จำลองให้สัมพันธ์กับเมนูและบริบทของแต่ละร้าน
+- Unseen Nearby เชื่อมสถานที่ใกล้ร้านเพื่อชวนให้เกิดการเดินทางต่อ ไม่ใช่แค่แวะดื่มกาแฟ
 
-## Quick start
+### 3. Merchant co-pilot แบบ Human-approved
 
-Requirements:
+- รับ input จากข้อความ, Thai browser speech transcript และรูปถ่าย
+- OpenAI อ่านข้อมูลร่วมกับหน้าร้านปัจจุบันแล้วคืน structured draft ที่ผ่าน schema validation
+- เจ้าของร้านแก้ไขข้อมูลเมล็ด, เมนู, opening note และ Workation ใน Preview ได้
+- AI ไม่มีสิทธิ์เผยแพร่เอง: ต้องกดยืนยันและ Approve/Reject ทุกครั้ง
+- การอนุมัติเมล็ดใหม่เพิ่ม item ใน Single Origin แทนการสร้างประกาศลอยด้านบน
+- สร้างร่างนำเมล็ดที่ขายหมดออกได้ โดย connected mode เก็บประวัติล็อตเดิมและใช้ transaction เดียวในการ archive
 
-- Node.js **20.19+** or **22.12+**; Node 22 LTS is recommended.
-- npm, using the committed `package-lock.json`.
+## Runtime modes
 
-```bash
+แอปรองรับการแยกโหมดข้อมูลออกจากโหมด AI เพื่อให้เดโมได้โดยไม่เสี่ยงแก้ฐานข้อมูลจริง
+
+| ตัวแปร | โหมด | พฤติกรรม |
+|---|---|---|
+| `APP_DATA_MODE=demo` | Judging / local demo | ใช้ fixture ร้านกาแฟ 13 ร้าน; การอนุมัติหน้าร้านเก็บใน `localStorage` ของ browser |
+| `APP_DATA_MODE=supabase` | Connected mode | โหลดและบันทึกร่าง/หน้าร้านผ่าน Supabase พร้อม Auth, ownership checks และ RLS |
+| `MERCHANT_DRAFT_PROVIDER=rules` | Local fallback | แยกข้อมูลด้วย deterministic rules โดยไม่เรียกโมเดล |
+| `MERCHANT_DRAFT_PROVIDER=openai-direct` | AI mode | เรียก OpenAI Responses API จาก server route เท่านั้น |
+
+Production สำหรับกรรมการ ณ วันที่ 13 กรกฎาคม 2026 ใช้ `APP_DATA_MODE=demo`, Supabase Auth สำหรับ login และ `MERCHANT_DRAFT_PROVIDER=openai-direct` สำหรับสร้างร่างจริง จึงสาธิต AI ได้โดยไม่เขียนทับฐานข้อมูลหน้าร้านสาธารณะ
+
+## Architecture
+
+| Layer | หน้าที่ |
+|---|---|
+| Next.js App Router | หน้าเที่ยว, หน้าร้าน, login, merchant dashboard และ server API routes |
+| Static demo domain data | 13 ร้าน, เมนู, Single Origin, รีวิว, Workation และ Unseen สำหรับ judging mode |
+| Supabase Auth | ยืนยัน session ของบัญชีร้านเดโมด้วย signed claims และ `app_metadata` |
+| Supabase Postgres | Schema, RLS, owner-scoped drafts และ publication workflow สำหรับ connected mode |
+| OpenAI Responses API | แปลงข้อความ/รูปเป็น structured merchant draft; ไม่สามารถ publish โดยตรง |
+| Vercel | Production deployment และ server-side environment variables |
+
+Tech stack หลัก: Next.js 16, React 19, TypeScript, Supabase SSR/JS, Vercel AI SDK, OpenAI provider, Zod และ Vitest
+
+## Routes
+
+| Route | หน้าที่ |
+|---|---|
+| `/` | ค้นหาและกรองร้านบนแผนที่จังหวัดน่าน |
+| `/cafes/[slug]` | รายละเอียดร้าน เมนู Single Origin, Coffee Origin Trace, รีวิว และ Workation |
+| `/cafes/[slug]/check-in` | Check-in/review flow สำหรับ MVP |
+| `/trail` | Coffee trail |
+| `/login` | Supabase Auth สำหรับเจ้าของร้าน |
+| `/merchant` | Merchant co-pilot และ approval preview |
+| `/api/merchant/draft` | สร้าง structured draft ด้วย rules หรือ OpenAI |
+| `/api/merchant/review` | Approve/Reject ร่างหลังตรวจสิทธิ์ |
+| `/api/merchant/offering-removal` | สร้างร่างนำ Single Origin ที่ขายหมดออก |
+| `/api/trails/parse` | แยก input เส้นทางแบบ deterministic |
+
+## Run locally
+
+ต้องมี Node.js รุ่นที่รองรับ Next.js 16 และ npm จากนั้นรันใน PowerShell:
+
+```powershell
 npm ci
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`. Environment variables are optional for the credential-free demo.
+เปิด [http://localhost:3000](http://localhost:3000)
 
-Available commands:
+หน้าเที่ยวและ rule-based flow ทำงานได้โดยไม่ใส่ key แต่ `/login` และ `/merchant` ต้องมี Supabase public configuration และ Auth user ที่ provision แล้ว
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the Next.js development server |
-| `npm run build` | Create a production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript without emitting files |
-| `npm test` | Run the Vitest domain tests once |
+### สร้างบัญชีร้านเดโมใน Supabase
 
-## Demo mode and reset
+ใส่ Supabase URL, publishable key และ secret key ใน `.env.local` แล้วรันคำสั่งนี้เฉพาะกับ Supabase project สำหรับเดโมที่ตั้งใจไว้:
 
-Demo mode activates when either `NEXT_PUBLIC_SUPABASE_URL` or a supported public Supabase key is missing. The header shows a demo-data pill and `/merchant` uses the automatic identity `merchant-demo-01`; there is no demo password.
+```powershell
+node --env-file=.env.local scripts/provision-demo-merchant.mjs
+```
 
-The completed merchant profile approval, simulated check-in, and pending review are stored only in that browser's `localStorage`. Rejection does not modify the profile. Clearing site data resets the demo. The merchant MVP is intentionally scoped to Khuang Cloud Coffee Lab and previews the full bean, menu, opening-note, and Workation profile before approval.
+Script จะสร้างหรืออัปเดต Auth user ของร้านฟองคำและใส่สิทธิ์ใน `app_metadata` ห้ามรันกับ project อื่นโดยไม่ตรวจ environment ก่อน
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` only when configuration is needed. Never commit `.env.local` or real credentials.
+ดู template ได้ที่ [`.env.example`](./.env.example) โดยค่าจริงต้องอยู่ใน `.env.local` หรือ Vercel Project Settings เท่านั้น
 
-| Variable | Exposure | Current use |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Browser-visible | Supabase project URL; required with one public key to enable connected mode |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-visible | Preferred current Supabase publishable key |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-visible | Legacy anon-key fallback; currently shown in `.env.example` |
-| `NEXT_PUBLIC_APP_URL` | Browser-visible | Absolute application base used for metadata; defaults to `http://localhost:3000` |
-| `APP_DATA_MODE` | Server config | `demo` locally or `supabase` for connected data; production fails closed when omitted |
-| `MERCHANT_DRAFT_PROVIDER` | Server config | `rules` for deterministic local parsing or `openai-direct` for multimodal production extraction |
-| `MERCHANT_AI_MODEL` | Server config | Direct OpenAI model ID; use `gpt-5.6-luna` for the MVP |
-| `OPENAI_API_KEY` | Server secret | Project-scoped OpenAI key used only by server routes; mark it Sensitive in Vercel |
-| `SUPABASE_SECRET_KEY` | Server secret | Preferred backend-only key for trusted, owner-authorized publication writes; legacy `SUPABASE_SERVICE_ROLE_KEY` remains a temporary fallback |
+| Variable | Exposure | ใช้เมื่อ |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Browser-visible | Supabase Auth และ connected mode |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-visible | Public Supabase client key ที่แนะนำ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-visible | Legacy compatibility fallback |
+| `NEXT_PUBLIC_APP_URL` | Browser-visible | Canonical app URL / metadata |
+| `APP_DATA_MODE` | Server config | ต้องเป็น `demo` หรือ `supabase`; Production fail closed หากไม่กำหนด |
+| `MERCHANT_DRAFT_PROVIDER` | Server config | `rules` หรือ `openai-direct` |
+| `MERCHANT_AI_MODEL` | Server config | Direct OpenAI model ID; judging deployment ใช้ `gpt-5.6-luna` |
+| `OPENAI_API_KEY` | **Server secret** | เรียก OpenAI จาก `/api/merchant/draft` |
+| `SUPABASE_SECRET_KEY` | **Server secret** | Admin writes ใน connected mode และ provisioning script |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Server secret** | Legacy fallback เท่านั้น |
 
-If both public key names are present, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` takes precedence. Publishable and legacy anon keys are intentionally public, but they are safe only with correctly tested RLS. Never give a Supabase secret/service-role key or `OPENAI_API_KEY` a `NEXT_PUBLIC_` prefix. Use a restricted key created inside the dedicated OpenAI Project, allow only the APIs the app needs, and never commit or paste the key into logs, screenshots, issues, or chat.
+ตัวแปรที่ขึ้นต้นด้วย `NEXT_PUBLIC_` จะอยู่ใน browser bundle แม้หน้า Vercel จะทำเครื่องหมายว่า Sensitive จึงต้องใส่เฉพาะ URL หรือ publishable key เท่านั้น ห้ามเปลี่ยนชื่อ OpenAI/Supabase secret ให้ขึ้นต้นด้วย `NEXT_PUBLIC_`
 
-## Supabase migration and seed
+### Vercel Production
 
-The repository includes:
+ตั้งค่าที่ Project → Settings → Environment Variables แล้ว redeploy หลังเปลี่ยนค่า เพราะ deployment เก่าจะไม่รับ environment variables ชุดใหม่
 
-- [Initial schema and RLS migration](supabase/migrations/20260711090000_initial_nan_coffee_schema.sql)
-- [Archived coffee-offering retention policy](supabase/migrations/20260712205523_protect_archived_coffee_offerings.sql)
-- [Merchant multimodal/profile migration](supabase/migrations/20260713010000_merchant_multimodal_profile.sql)
-- [Atomic sold-out Single Origin approval RPC](supabase/migrations/20260713020000_atomic_sold_out_offering_archive.sql)
-- [Idempotent demo seed](supabase/seed.sql)
-- [Supabase-specific notes and post-apply checks](supabase/README.md)
+- Scope `OPENAI_API_KEY` และ `SUPABASE_SECRET_KEY` เฉพาะ environment ที่ต้องใช้ และเปิด Sensitive
+- Preview ไม่ควรใช้ Production secret/database โดยไม่จำเป็น
+- Judging mode ต้องใช้ Supabase URL + publishable key สำหรับ Auth และ OpenAI key สำหรับ AI draft
+- `SUPABASE_SECRET_KEY` ไม่จำเป็นต่อ runtime เมื่อ `APP_DATA_MODE=demo`; ใช้เมื่อเปิด persistent Supabase mode เท่านั้น
+- OpenAI key ใช้ Project แยก, จำกัดสิทธิ์ Responses API และตั้ง Project spend limit ไว้ที่ USD 5
 
-The migrations create 13 public tables, enable RLS on all of them, and retain sold-out coffee lots as archived history. Apply every migration in timestamp order before `seed.sql`. The most direct hosted-project path is to run each file, in that order, in the Supabase SQL Editor. If using the CLI, initialize/link a Supabase project first—the repository does not currently include `supabase/config.toml`—then run the migrations with `supabase db push` and apply `seed.sql` to the intended development database.
+## Supabase connected mode
 
-The seed uses `ON CONFLICT DO NOTHING`. It creates the three fictional cafes and the three source-checked Unseen records, but intentionally creates **no Auth users, profiles, or cafe ownership claims**.
+Migration อยู่ใน `supabase/migrations`:
 
-After applying to a development project, test anon, traveler, merchant-owner, and non-owner sessions. In particular, verify that pending drafts are not public, a merchant cannot access another cafe, unverified visits cannot create reviews/community reports, and travelers cannot set role, ownership, verification, translation, or moderation fields.
+1. `20260711090000_initial_nan_coffee_schema.sql`
+2. `20260712205523_protect_archived_coffee_offerings.sql`
+3. `20260713010000_merchant_multimodal_profile.sql`
+4. `20260713020000_atomic_sold_out_offering_archive.sql`
+5. `20260713030000_database_advisor_fixes.sql`
 
-## Authentication, ownership, and current integration status
+เมื่อตั้ง Supabase CLI และ link project แล้ว ให้ review migration ก่อนใช้คำสั่ง:
 
-Public traveler browsing requires no login.
+```powershell
+supabase db push
+```
 
-With a valid Supabase URL and public key, `/login` uses Supabase email/password auth. `/merchant` validates signed claims server-side and requires a `cafe_owners` row for the authenticated profile with `status = 'verified'`. Create the Auth user, matching `profiles` row, and verified ownership through a trusted admin/onboarding process; clients must not be allowed to self-assign merchant roles or ownership.
+ไฟล์ `supabase/seed.sql` เป็น seed สำหรับ environment ที่ต้องการ persistent demo data แยกจาก static judging fixtures
 
-The connected merchant endpoints enforce the same ownership check before creating or reviewing a draft. The review endpoint reloads the canonical draft server-side; a rejected draft remains non-public, while approval applies the typed bean, menu, opening-note, and Workation patch with trusted server credentials. Raw transcript **text** may be stored as `content_drafts.source_input_text`; raw audio and image bytes are not persisted (only safe image metadata is retained with the draft).
+## Security and privacy boundaries
 
-In local mode, `MERCHANT_DRAFT_PROVIDER=rules` keeps the flow credential-free and deterministic. It can retain an attached photo as review evidence but cannot read the image. In production, `MERCHANT_DRAFT_PROVIDER=openai-direct` sends the current authoritative profile, merchant text, and optional image from the server route directly to the configured OpenAI model and accepts only schema-validated structured output. The request explicitly disables Responses API application-state storage. The model can propose a draft but cannot publish it.
+- ตรวจ Git history และ tracked tree รอบล่าสุดแล้ว ไม่พบ OpenAI, Supabase, GitHub, Vercel, database credential หรือ private key จริงถูก commit
+- `.env.local`, `.vercel/`, logs และ build output ถูก `.gitignore`
+- `OPENAI_API_KEY` และ Supabase secret ถูกอ่านเฉพาะ server-side; browser ใช้ publishable key ร่วมกับ RLS
+- Supabase public tables ทั้ง 13 ตารางเปิด RLS และ policy ผูกการเขียนกับผู้ใช้/เจ้าของร้านที่ยืนยันแล้ว
+- Authorization ใช้ validated Supabase claims; สิทธิ์ร้านเดโมอยู่ใน `app_metadata` ไม่ใช่ user-editable metadata
+- AI รับ current profile เป็น context แต่ถูกสั่งให้ถือข้อความและรูปเป็น untrusted data และคืนเฉพาะ structured schema
+- OpenAI request ใช้ `maxRetries: 0`, จำกัด output, reasoning ต่ำ และ `store: false`
+- `store: false` ลดการเก็บ Response application state แต่ **ไม่ใช่** การรับรอง Zero Data Retention; ดู [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data#v1responses)
+- ระบบไม่เก็บไฟล์เสียงดิบ; browser ส่งเฉพาะ transcript text
+- รูปถูกส่งให้ OpenAI เฉพาะตอนสร้างร่าง และไม่เก็บ raw image bytes ใน Supabase; เก็บได้เพียงชื่อ ชนิด และขนาดสำหรับ audit metadata
+- Connected mode อาจเก็บข้อความ/transcript ใน `content_drafts` เพื่อให้เจ้าของร้านตรวจสอบย้อนกลับ
+- บัญชีกรรมการเป็น public demo credential ที่จำกัดให้ร้านเดียว ควร reset หรือปิดหลังจบการตัดสิน
 
-Current boundary: traveler ranking, legacy cafe profile pages, and Unseen cards still read the TypeScript fixtures. The merchant editor and approval path are prepared for Supabase, but production onboarding still needs an Auth user, matching profile, verified cafe ownership, migrated database, and one published cafe. Check-in/review remains a browser-local demo and is not production visit verification.
+แนวทาง key ปัจจุบันอ้างอิง [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys), [Vercel Sensitive Environment Variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables) และ [OpenAI API key best practices](https://developers.openai.com/api/docs/guides/production-best-practices#api-keys)
 
-## Voice, location, and privacy fallbacks
+## Verification status
 
-- Voice remains available in merchant and legacy input flows through the browser's `SpeechRecognition`/`webkitSpeechRecognition` implementation with `th-TH`. The app receives transcript text and does not retain an audio file.
-- Location on the home-page finder is requested only after a button press. Denial, timeout, or lack of support falls back to a place name or typed coordinates.
-- Finder coordinates and filters stay in React state for the current page session; the home page does not send them to the parse endpoint or write them to `localStorage`.
-- The check-in location fallback ignores the returned coordinates after browser permission succeeds and stores only a `demo-verified` method/timestamp in `localStorage`. QR and location success are explicitly not production evidence.
-- A browser-local demo review requires that simulated check-in, allows one pending review per cafe/site-data state, retains the Thai original, and does not appear publicly without moderation.
+ตรวจล่าสุดวันที่ 13 กรกฎาคม 2026:
 
-## Security boundaries
-
-- `OPENAI_API_KEY` and the Supabase secret/service-role key are server-only. Current client/server Supabase sessions use the publishable/anon key plus RLS.
-- The OpenAI key must belong to the dedicated `Nan Coffee MVP` Project with its Project spend limit set to **USD 5**. The app must treat OpenAI quota-exhaustion responses as a closed budget boundary and must not silently fall back to another project, key, provider, or model.
-- `store: false` prevents Responses API application-state storage for these calls, but it is not Zero Data Retention. OpenAI abuse-monitoring retention still follows the Project/organization data controls.
-- Server authorization uses validated claims, not an unverified client session value.
-- Public reads are approval/publication/moderation gated. Merchant writes are verified-owner scoped; traveler records are owner scoped.
-- Editing approved public records resets approval where defined, so publication remains a separate explicit action.
-- Ownership verification, real check-in verification, moderation, translations, and administrative actions remain trusted server/admin responsibilities.
-- The deterministic parser and ranker do not invent cafe, bean, place, weather, opening, or connectivity facts. Merchant-reported speed is never described as a stability guarantee.
-
-## Vercel deployment
-
-Import the intended GitHub repository as a Next.js project. Use `npm ci` for install and `npm run build` for the build; do not upload `.env.local`.
-
-Configure variables separately for all three Vercel scopes:
-
-| Scope | Recommended configuration |
-| --- | --- |
-| Development | Local/development Supabase project, `NEXT_PUBLIC_APP_URL=http://localhost:3000`, and development-only server secrets if needed |
-| Preview | Isolated preview project/keys and the intended preview base URL; never reuse production database/model secrets by default |
-| Production | Production URL, publishable key, canonical app URL, and only the server secrets actually required |
-
-For production merchant updates set `APP_DATA_MODE=supabase`, `MERCHANT_DRAFT_PROVIDER=openai-direct`, `MERCHANT_AI_MODEL=gpt-5.6-luna`, the Supabase public values, `SUPABASE_SECRET_KEY`, and the project-scoped `OPENAI_API_KEY`. Mark both server secrets Sensitive. Keep local development on `demo` + `rules` until those services are ready.
-
-Before enabling OpenAI Direct, set the **Nan Coffee MVP** OpenAI Project spend limit to **USD 5** and verify that the key was created inside that Project. OpenAI rejects new requests after that Project limit is reached; surface that state as a budget-exhausted error rather than retrying indefinitely or falling back to a different credential. The limit resets on the schedule shown in the OpenAI Project settings, so confirm the intended reset policy before production launch.
-
-Use either the publishable key or legacy anon key in each scope. `NEXT_PUBLIC_` values are embedded into the client build, so redeploy after changing them. A local secret file is not available to Vercel automatically.
-
-## Validation status
-
-The following checks passed during the implementation handoff:
-
-```bash
+```powershell
 npm run lint
 npm run typecheck
 npm test
 npm run build
+npm audit --omit=dev
 ```
 
-- ESLint completed with no errors or warnings.
-- TypeScript completed with no errors.
-- Vitest passed **151 tests across 21 files**, including finder coherence, Workation metrics, map bounds, Nan-grown/Nan-roasted filters, menu extraction without false bean matches, multimodal contracts, strict OpenAI response-schema compatibility and safe provider-error classification, immutable profile merging and atomic sold-out bean removal, Supabase enum mapping, merchant approval, admin-secret selection, and review eligibility.
-- The Next.js production build completed and generated all traveler, cafe, merchant, auth, check-in, and API routes.
-- `npm audit` reported **0 known vulnerabilities** after applying the non-breaking AI SDK dependency patch recommended by npm.
-- HTTP smoke tests returned `200` for the merchant page. The merchant API completed menu rejection, voice-transcript bean/Workation approval, and multimodal photo-metadata flows; no image data URL appeared in the returned draft.
+- Vitest: 179 tests ผ่านทั้งหมดใน 27 test files
+- ESLint, TypeScript และ production build ผ่าน
+- `npm audit --omit=dev`: ไม่พบช่องโหว่ dependency ที่รายงานในขณะตรวจ
+- Production rehearsal ผ่านทั้ง traveler filters/map, demo login, text/photo OpenAI draft, approval preview และผลบนหน้าร้าน
+- OpenAI production request สำเร็จด้วย `gpt-5.6-luna` และ log เฉพาะ token usage ไม่บันทึก key หรือ merchant input
 
-The in-app browser surface was unavailable in this session, so no visual/emulator pass is claimed. There is no automated browser E2E suite yet. Run the complete traveler and merchant story manually at **320px, 375px, 390px, and 430px** widths. Check Thai wrapping, no horizontal page scroll, 44px touch targets, safe-area/sticky controls, the virtual keyboard, loading/error states, slow-network duplicate-submit protection, and microphone/location denial and timeout fallbacks. Also verify a draft and a rejected update do not alter the public profile before testing approval.
+## Data scope
 
-## GitHub publication status
+- ชื่อ/พิกัดร้านกาแฟ 13 ร้าน, ความสัมพันธ์ร้าน–เมล็ด–เมนู–ราคา–รีวิว–อินเทอร์เน็ต เป็น MVP fixtures สำหรับทดสอบ
+- ภูมิศาสตร์กาแฟน่านถูกปรับให้ใกล้บริบทจริงจาก reference ที่รวบรวมสำหรับโครงการ แต่ไม่ควรตีความเป็น inventory หรือ sourcing claim แบบ real-time
+- พิกัดสถานที่ MVP ที่กำหนด: ท่าอากาศยานน่านนคร, วัดภูมินทร์ และวัดพระธาตุแช่แห้ง
+- ขอบเขตจังหวัดใช้ GeoJSON จาก [apisit/thailand.json](https://github.com/apisit/thailand.json)
+- ดัชนีจังหวัด/อำเภอ/ตำบลและพิกัดอ้างอิงจาก [spicydog/thailand-province-district-subdistrict-zipcode-latitude-longitude](https://github.com/spicydog/thailand-province-district-subdistrict-zipcode-latitude-longitude)
+- ชื่อ Unseen Nearby ใน MVP เป็นข้อมูลประกอบเส้นทาง; ไม่ได้อ้างว่าทุกรายการผ่าน official verification แยกกัน
 
-Publication is currently blocked. During this build, `.git/` exists but is empty, so this directory is not a Git repository: `git status` fails, and there is no branch, commit, `origin`, or pull request to report. Obtain the intended GitHub repository URL—or explicit permission to create one—before initializing Git and publishing; do not invent a destination.
+## Deployment workflow
+
+`main` เชื่อมกับ Vercel Production โดยตรง:
+
+```powershell
+git add README.md
+git commit -m "Update README for production MVP"
+git push origin main
+```
+
+การ push ไป `main` จะสร้าง Production deployment ใหม่อัตโนมัติ ตรวจ deployment status และ smoke test URL หลัง push ทุกครั้ง
