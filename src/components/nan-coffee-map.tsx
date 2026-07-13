@@ -95,10 +95,6 @@ type MapPinchState = {
 const VIEWBOX_WIDTH = 760;
 const VIEWBOX_HEIGHT = 700;
 const MAP_PADDING = 54;
-const DETAIL_VIEWBOX_WIDTH = 760;
-const DETAIL_VIEWBOX_HEIGHT = 360;
-const DETAIL_MAP_PADDING = 42;
-const DETAIL_MINIMUM_EXTENT_KM = 12;
 const KM_PER_LATITUDE_DEGREE = 110.574;
 const MAX_MAP_ZOOM = 64;
 const ZOOM_STEP = 1.6;
@@ -438,34 +434,6 @@ function createProjectionFromPositions(
   };
 }
 
-function shouldShowDetailInset(
-  rings: readonly (readonly NanLngLat[])[],
-  plottedPositions: readonly NanLngLat[],
-  provinceProjection: Projection,
-): boolean {
-  if (plottedPositions.length < 3) return false;
-
-  const provincePoints = rings.flat().map((position) => provinceProjection.project(position));
-  const plottedPoints = plottedPositions.map((position) => provinceProjection.project(position));
-  if (provincePoints.length === 0) return false;
-
-  const extent = (points: readonly ProjectedPoint[]) => {
-    const xs = points.map((point) => point.x);
-    const ys = points.map((point) => point.y);
-    return {
-      width: Math.max(...xs) - Math.min(...xs),
-      height: Math.max(...ys) - Math.min(...ys),
-    };
-  };
-
-  const provinceExtent = extent(provincePoints);
-  const plottedExtent = extent(plottedPoints);
-  const widthRatio = plottedExtent.width / Math.max(provinceExtent.width, 1);
-  const heightRatio = plottedExtent.height / Math.max(provinceExtent.height, 1);
-
-  return Math.max(widthRatio, heightRatio) <= 0.32;
-}
-
 function ringPath(ring: readonly NanLngLat[], projection: Projection): string {
   return ring
     .map((position, index) => {
@@ -510,52 +478,72 @@ function LegendSwatch({ variant }: { variant: "location" | "radius" | "cafe" | "
   );
 }
 
-type MapDetailInsetProps = {
+type MapPointDetailsProps = {
   idPrefix: string;
   locations: readonly NanMapLocation[];
   cafes: readonly NanMapCafe[];
-  radiusKm: number;
-  corridorKm: number;
 };
 
-function MapDetailInset({
+function MapPointDetails({
   idPrefix,
   locations,
   cafes,
-  radiusKm,
-  corridorKm,
-}: MapDetailInsetProps) {
-  const positions: NanLngLat[] = [
-    ...locations.map((location): NanLngLat => [location.lng, location.lat]),
-    ...cafes.map((cafe): NanLngLat => [cafe.lng, cafe.lat]),
-  ];
-  const projection = createProjectionFromPositions(
-    positions,
-    DETAIL_VIEWBOX_WIDTH,
-    DETAIL_VIEWBOX_HEIGHT,
-    DETAIL_MAP_PADDING,
-    DETAIL_MINIMUM_EXTENT_KM,
+}: MapPointDetailsProps) {
+  if (locations.length === 0 && cafes.length === 0) return null;
+
+  const headingId = `nan-map-points-heading-${idPrefix}`;
+  const descriptionId = `nan-map-points-description-${idPrefix}`;
+  const indexedCafes = cafes.map((cafe, index) => ({ cafe, index }));
+  const nearbyCafes = indexedCafes.filter(({ cafe }) => !cafe.isCorridorMatch);
+  const corridorCafes = indexedCafes.filter(({ cafe }) => cafe.isCorridorMatch);
+
+  const renderCafeList = (
+    items: readonly { cafe: NanMapCafe; index: number }[],
+    label: string,
+  ) => (
+    <ol
+      aria-label={label}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(10.5rem, 1fr))",
+        gap: "0.4rem 0.8rem",
+        margin: 0,
+        padding: 0,
+        listStyle: "none",
+        color: "var(--espresso-950, #241813)",
+        fontSize: "0.75rem",
+      }}
+    >
+      {items.map(({ cafe, index }) => (
+        <li key={`map-point-cafe-${cafe.id}`} style={{ display: "flex", alignItems: "baseline", gap: "0.4rem", minWidth: 0 }}>
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-grid",
+              placeItems: "center",
+              width: "1.25rem",
+              height: "1.25rem",
+              flex: "0 0 auto",
+              borderRadius: "999px",
+              color: "#fffdf8",
+              background: cafe.isCorridorMatch
+                ? "var(--saffron-500, #d99530)"
+                : "var(--espresso-800, #4b2f24)",
+              fontSize: "0.65rem",
+              fontWeight: 800,
+            }}
+          >
+            {index + 1}
+          </span>
+          <span>{cafe.name}</span>
+        </li>
+      ))}
+    </ol>
   );
-
-  if (!projection) return null;
-
-  const headingId = `nan-map-detail-heading-${idPrefix}`;
-  const descriptionId = `nan-map-detail-description-${idPrefix}`;
-  const svgTitleId = `nan-map-detail-svg-title-${idPrefix}`;
-  const svgDescriptionId = `nan-map-detail-svg-description-${idPrefix}`;
-  const clipId = `nan-map-detail-clip-${idPrefix}`;
-  const routePoints = locations
-    .map((location) => projection.project([location.lng, location.lat]))
-    .map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`)
-    .join(" ");
-  const radiusPixels = projection.kilometersToPixels(radiusKm);
-  const corridorPixels = projection.kilometersToPixels(corridorKm);
-  const scaleBarKm = 2;
-  const scaleBarPixels = projection.kilometersToPixels(scaleBarKm);
 
   return (
     <section
-      className="nan-map__detail-inset"
+      className="nan-map__point-details"
       aria-labelledby={headingId}
       aria-describedby={descriptionId}
       style={{
@@ -563,7 +551,6 @@ function MapDetailInset({
         border: "1px solid var(--line, rgba(64, 43, 33, 0.14))",
         borderRadius: "1.1rem",
         background: "var(--cream-50, #fffdf8)",
-        overflow: "hidden",
       }}
     >
       <header style={{ padding: "0.9rem 1rem 0.75rem" }}>
@@ -576,209 +563,51 @@ function MapDetailInset({
             fontSize: "1rem",
           }}
         >
-          ขยายบริเวณที่มีจุดหนาแน่น
+          รายละเอียดจุดบนแผนที่
         </h3>
         <p
           id={descriptionId}
           style={{ margin: "0.3rem 0 0", color: "var(--muted, #73665e)", fontSize: "0.78rem", lineHeight: 1.5 }}
         >
-          ใช้พิกัดและสเกลระยะทางเดิม เลขสีน้ำตาลตรงกับรายชื่อร้านด้านล่าง ส่วนจุดสีเขียวเรียงตามลำดับเส้นทาง
+          หมายเลขในรายการตรงกับจุดบนแผนที่ด้านบน จุดสีเขียวคือสถานที่ที่เลือก และจุดสีน้ำตาลคือร้านกาแฟ
         </p>
       </header>
 
-      <svg
-        className="nan-map__detail-canvas"
-        role="img"
-        aria-labelledby={`${svgTitleId} ${svgDescriptionId}`}
-        viewBox={`0 0 ${DETAIL_VIEWBOX_WIDTH} ${DETAIL_VIEWBOX_HEIGHT}`}
-        style={{ display: "block", width: "100%", height: "auto", background: "#f6f0e5" }}
-      >
-        <title id={svgTitleId}>แผนที่ขยายตำแหน่งร้านกาแฟ</title>
-        <desc id={svgDescriptionId}>
-          แผนที่ขยายบริเวณที่มีจุดซ้อนกัน แสดงสถานที่ {locations.length} จุด และร้านกาแฟ {cafes.length} ร้านด้วยพิกัดเดิม
-        </desc>
-        <defs>
-          <clipPath id={clipId}>
-            <rect width={DETAIL_VIEWBOX_WIDTH} height={DETAIL_VIEWBOX_HEIGHT} rx="18" />
-          </clipPath>
-        </defs>
-
-        <g clipPath={`url(#${clipId})`}>
-          <rect width={DETAIL_VIEWBOX_WIDTH} height={DETAIL_VIEWBOX_HEIGHT} fill="#f6f0e5" />
-          {[0.25, 0.5, 0.75].map((fraction) => (
-            <g key={`detail-grid-${fraction}`} stroke="rgba(62, 106, 87, 0.09)" strokeWidth="1" aria-hidden="true">
-              <line x1={DETAIL_VIEWBOX_WIDTH * fraction} y1="0" x2={DETAIL_VIEWBOX_WIDTH * fraction} y2={DETAIL_VIEWBOX_HEIGHT} />
-              <line x1="0" y1={DETAIL_VIEWBOX_HEIGHT * fraction} x2={DETAIL_VIEWBOX_WIDTH} y2={DETAIL_VIEWBOX_HEIGHT * fraction} />
-            </g>
-          ))}
-
-          {radiusKm > 0 && locations.map((location) => {
-            const point = projection.project([location.lng, location.lat]);
-            return (
-              <circle
-                key={`detail-radius-${location.id}`}
-                cx={point.x}
-                cy={point.y}
-                r={radiusPixels}
-                fill="rgba(62, 106, 87, 0.025)"
-                stroke="rgba(62, 106, 87, 0.34)"
-                strokeWidth="1.25"
-                strokeDasharray="5 6"
-                vectorEffect="non-scaling-stroke"
-                aria-hidden="true"
-              />
-            );
-          })}
-
-          {locations.length > 1 && corridorKm > 0 && (
-            <polyline
-              points={routePoints}
-              fill="none"
-              stroke="rgba(217, 149, 48, 0.14)"
-              strokeWidth={Math.max(2, corridorPixels * 2)}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            />
-          )}
-
-          {locations.length > 1 && (
-            <polyline
-              points={routePoints}
-              fill="none"
-              stroke="var(--forest-800, #2c5041)"
-              strokeWidth="3"
-              strokeDasharray="3 6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              vectorEffect="non-scaling-stroke"
-              aria-hidden="true"
-            />
-          )}
-
-          {cafes.map((cafe, index) => {
-            const point = projection.project([cafe.lng, cafe.lat]);
-            const markerColor = cafe.isCorridorMatch ? "var(--saffron-500, #d99530)" : "var(--espresso-800, #4b2f24)";
-            const accessibleLabel = `ร้านหมายเลข ${index + 1} ${cafe.name}${cafe.isCorridorMatch ? " ร้านระหว่างเส้นทาง" : ""}`;
-            return (
-              <g key={`detail-cafe-${cafe.id}`} role="img" aria-label={accessibleLabel}>
-                <title>{accessibleLabel}</title>
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r="10"
-                  fill={markerColor}
-                  stroke="var(--cream-50, #fffdf8)"
-                  strokeWidth="2.5"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <text
-                  x={point.x}
-                  y={point.y + 3.4}
-                  textAnchor="middle"
-                  fill="var(--cream-50, #fffdf8)"
-                  fontSize={index >= 9 ? "7.5" : "9"}
-                  fontWeight="800"
-                  aria-hidden="true"
-                >
-                  {index + 1}
-                </text>
-              </g>
-            );
-          })}
-
-          {locations.map((location, index) => {
-            const point = projection.project([location.lng, location.lat]);
-            const accessibleLabel = `จุดที่ ${index + 1} ${location.label}`;
-            return (
-              <g key={`detail-location-${location.id}`} role="img" aria-label={accessibleLabel}>
-                <title>{accessibleLabel}</title>
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r="13"
-                  fill="var(--forest-800, #2c5041)"
-                  stroke="var(--cream-50, #fffdf8)"
-                  strokeWidth="3"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <text
-                  x={point.x}
-                  y={point.y + 4}
-                  textAnchor="middle"
-                  fill="var(--cream-50, #fffdf8)"
-                  fontSize="10"
-                  fontWeight="800"
-                  aria-hidden="true"
-                >
-                  {index + 1}
-                </text>
-                <text
-                  x={point.x + 18}
-                  y={point.y - 9}
-                  fill="var(--forest-900, #203c31)"
-                  stroke="var(--cream-50, #fffdf8)"
-                  strokeWidth="5"
-                  paintOrder="stroke fill"
-                  fontSize="11"
-                  fontWeight="800"
-                  aria-hidden="true"
-                >
-                  {shortenLabel(location.label, 20)}
-                </text>
-              </g>
-            );
-          })}
-
-          <g transform={`translate(${DETAIL_MAP_PADDING} ${DETAIL_VIEWBOX_HEIGHT - 24})`} aria-hidden="true">
-            <line x1="0" y1="0" x2={scaleBarPixels} y2="0" stroke="var(--espresso-950, #241813)" strokeWidth="3" />
-            <line x1="0" y1="-4" x2="0" y2="4" stroke="var(--espresso-950, #241813)" strokeWidth="2" />
-            <line x1={scaleBarPixels} y1="-4" x2={scaleBarPixels} y2="4" stroke="var(--espresso-950, #241813)" strokeWidth="2" />
-            <text x={scaleBarPixels / 2} y="-7" textAnchor="middle" fill="var(--espresso-950, #241813)" fontSize="10" fontWeight="700">
-              {scaleBarKm} กม.
-            </text>
-          </g>
-        </g>
-      </svg>
-
       {locations.length > 0 && (
-        <ol
-          aria-label="ลำดับสถานที่บนเส้นทาง"
-          style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem 0.8rem", margin: 0, padding: "0.75rem 1rem 0", listStyle: "none", color: "var(--forest-900, #203c31)", fontSize: "0.76rem" }}
-        >
-          {locations.map((location, index) => (
-            <li key={`detail-location-list-${location.id}`}>
-              <strong>{index + 1}.</strong> {location.label}
-            </li>
-          ))}
-        </ol>
+        <div style={{ padding: "0 1rem 0.85rem" }}>
+          <h4 style={{ margin: "0 0 0.45rem", color: "var(--forest-900, #203c31)", fontSize: "0.78rem" }}>
+            สถานที่ที่เลือก
+          </h4>
+          <ol
+            aria-label="ลำดับสถานที่บนเส้นทาง"
+            style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem 0.8rem", margin: 0, padding: 0, listStyle: "none", color: "var(--forest-900, #203c31)", fontSize: "0.76rem" }}
+          >
+            {locations.map((location, index) => (
+              <li key={`map-point-location-${location.id}`}>
+                <strong>{index + 1}.</strong> {location.label}
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
 
-      <ol
-        aria-label="รายชื่อร้านหมายเลขบนแผนที่ขยาย"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(10.5rem, 1fr))",
-          gap: "0.4rem 0.8rem",
-          margin: 0,
-          padding: "0.8rem 1rem 1rem",
-          listStyle: "none",
-          color: "var(--espresso-950, #241813)",
-          fontSize: "0.75rem",
-        }}
-      >
-        {cafes.map((cafe, index) => (
-          <li key={`detail-cafe-list-${cafe.id}`} style={{ display: "flex", alignItems: "baseline", gap: "0.4rem", minWidth: 0 }}>
-            <span
-              aria-hidden="true"
-              style={{ display: "inline-grid", placeItems: "center", width: "1.25rem", height: "1.25rem", flex: "0 0 auto", borderRadius: "999px", color: "#fffdf8", background: cafe.isCorridorMatch ? "var(--saffron-500, #d99530)" : "var(--espresso-800, #4b2f24)", fontSize: "0.65rem", fontWeight: 800 }}
-            >
-              {index + 1}
-            </span>
-            <span>{cafe.name}</span>
-          </li>
-        ))}
-      </ol>
+      {nearbyCafes.length > 0 && (
+        <div style={{ padding: "0 1rem 0.85rem" }}>
+          <h4 style={{ margin: "0 0 0.45rem", color: "var(--espresso-950, #241813)", fontSize: "0.78rem" }}>
+            ร้านกาแฟที่พบ
+          </h4>
+          {renderCafeList(nearbyCafes, "รายชื่อร้านหมายเลขบนแผนที่")}
+        </div>
+      )}
+
+      {corridorCafes.length > 0 && (
+        <div style={{ padding: "0 1rem 1rem" }}>
+          <h4 style={{ margin: "0 0 0.45rem", color: "var(--espresso-950, #241813)", fontSize: "0.78rem" }}>
+            ร้านระหว่างเส้นทาง
+          </h4>
+          {renderCafeList(corridorCafes, "รายชื่อร้านระหว่างเส้นทางบนแผนที่")}
+        </div>
+      )}
     </section>
   );
 }
@@ -893,7 +722,6 @@ export function NanCoffeeMap({
     .join(" ");
   const radiusPixels = projection.kilometersToPixels(resolvedRadiusKm);
   const corridorPixels = projection.kilometersToPixels(resolvedCorridorKm);
-  const showDetailInset = shouldShowDetailInset(rings, plottedPositions, projection);
   const projectedPlotPoints = plottedPositions.map((position) => projection.project(position));
   const canZoomIn = currentMapZoom < MAX_MAP_ZOOM - 0.01;
   const canZoomOut = currentMapZoom > 1.01;
@@ -1347,15 +1175,11 @@ export function NanCoffeeMap({
           })}
         </svg>
 
-        {showDetailInset && (
-          <MapDetailInset
-            idPrefix={reactId}
-            locations={validLocations}
-            cafes={validCafes}
-            radiusKm={resolvedRadiusKm}
-            corridorKm={resolvedCorridorKm}
-          />
-        )}
+        <MapPointDetails
+          idPrefix={reactId}
+          locations={validLocations}
+          cafes={validCafes}
+        />
 
         <figcaption>
           <ul className="nan-map__legend" style={legendStyle} aria-label="คำอธิบายสัญลักษณ์บนแผนที่">
