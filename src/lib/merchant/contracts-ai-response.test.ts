@@ -140,6 +140,91 @@ describe("merchant OpenAI response contract", () => {
     });
   });
 
+  it("keeps a Thai-only Single Origin update when OpenAI leaves English notes blank", () => {
+    const response = {
+      ...emptyResponse,
+      kinds: ["offering"],
+      offering: {
+        beanName: " ห้วยโทน จาวา เนเชอรัล 01 ",
+        originProvince: "น่าน",
+        originName: "บ้านห้วยโทน อำเภอบ่อเกลือ",
+        producer: "กลุ่มผู้ปลูกกาแฟบ้านห้วยโทน",
+        altitudeMeters: null,
+        varietal: " ",
+        process: "natural",
+        processingLocation: { province: " ", locality: " " },
+        roastLevel: "light",
+        roasterLocation: null,
+        tastingNotes: [
+          { th: "ส้มแมนดาริน", en: "" },
+          { th: "สตรอว์เบอร์รี", en: " " },
+          { th: "น้ำผึ้ง", en: "honey" },
+        ],
+        tasteProfiles: ["fruity"],
+        brewMethods: ["filter", "cold-brew"],
+        price: { amount: 150, currency: "THB" },
+        availability: "limited",
+      },
+      fieldEvidence: [{
+        field: " offering.beanName ",
+        sourceText: " เมล็ดห้วยโทน จาวา เนเชอรัล 01 ",
+        confidence: "high",
+      }],
+      unresolvedFields: [" ", "offering.varietal"],
+    } as const;
+
+    expect(normalizeMerchantAIResponse(response)).toEqual({
+      kinds: ["offering"],
+      offering: {
+        beanName: "ห้วยโทน จาวา เนเชอรัล 01",
+        originProvince: "น่าน",
+        originName: "บ้านห้วยโทน อำเภอบ่อเกลือ",
+        producer: "กลุ่มผู้ปลูกกาแฟบ้านห้วยโทน",
+        process: "natural",
+        roastLevel: "light",
+        tastingNotes: [
+          { th: "ส้มแมนดาริน", en: "ส้มแมนดาริน" },
+          { th: "สตรอว์เบอร์รี", en: "สตรอว์เบอร์รี" },
+          { th: "น้ำผึ้ง", en: "honey" },
+        ],
+        tasteProfiles: ["fruity"],
+        brewMethods: ["filter", "cold-brew"],
+        price: { amount: 150, currency: "THB" },
+        availability: "limited",
+      },
+      fieldEvidence: [{
+        field: "offering.beanName",
+        sourceText: "เมล็ดห้วยโทน จาวา เนเชอรัล 01",
+        confidence: "high",
+      }],
+      unresolvedFields: ["offering.varietal"],
+    });
+  });
+
+  it("drops an untrusted non-UUID menu id before resolving the menu item", () => {
+    const response = {
+      ...emptyResponse,
+      kinds: ["menu"],
+      menuItems: [{
+        id: "current-menu",
+        nameTh: "กาแฟส้ม",
+        nameEn: null,
+        descriptionTh: null,
+        descriptionEn: null,
+        priceThb: 120,
+        isAvailable: true,
+        isCafePick: null,
+        usesFeaturedSingleOrigin: null,
+      }],
+    } as const;
+
+    expect(normalizeMerchantAIResponse(response).menuItems).toEqual([{
+      nameTh: "กาแฟส้ม",
+      priceThb: 120,
+      isAvailable: true,
+    }]);
+  });
+
   it("revalidates normalized output with the existing domain schema", () => {
     expect(merchantAIResponseSchema.safeParse({
       ...emptyResponse,

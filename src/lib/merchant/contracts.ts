@@ -159,6 +159,110 @@ export const merchantAIResponseSchema = z.object({
   unresolvedFields: z.array(z.string()).max(40),
 }).strict();
 
+function cleanAIString(value: string | null) {
+  const cleaned = value?.trim();
+  return cleaned || null;
+}
+
+function cleanAILocation(
+  value: z.infer<typeof merchantAILocationSchema> | null,
+) {
+  if (!value) return null;
+  const province = cleanAIString(value.province);
+  const locality = cleanAIString(value.locality);
+  return province || locality ? { province, locality } : null;
+}
+
+function prepareMerchantAIResponseForDomain(
+  response: z.infer<typeof merchantAIResponseSchema>,
+) {
+  const offeringCandidate = response.offering
+    ? {
+        ...response.offering,
+        beanName: cleanAIString(response.offering.beanName),
+        originProvince: cleanAIString(response.offering.originProvince),
+        originName: cleanAIString(response.offering.originName),
+        producer: cleanAIString(response.offering.producer),
+        varietal: cleanAIString(response.offering.varietal),
+        processingLocation: cleanAILocation(response.offering.processingLocation),
+        roasterLocation: cleanAILocation(response.offering.roasterLocation),
+        tastingNotes: response.offering.tastingNotes.flatMap((note) => {
+          const th = note.th.trim();
+          const en = note.en.trim();
+          const availableText = th || en;
+          return availableText
+            ? [{ th: th || availableText, en: en || availableText }]
+            : [];
+        }),
+      }
+    : null;
+  const offering = offeringCandidate && (
+    offeringCandidate.beanName
+    || offeringCandidate.originProvince
+    || offeringCandidate.originName
+    || offeringCandidate.producer
+    || offeringCandidate.altitudeMeters
+    || offeringCandidate.varietal
+    || offeringCandidate.process
+    || offeringCandidate.processingLocation
+    || offeringCandidate.roastLevel
+    || offeringCandidate.roasterLocation
+    || offeringCandidate.tastingNotes.length
+    || offeringCandidate.tasteProfiles.length
+    || offeringCandidate.brewMethods.length
+    || offeringCandidate.price
+    || offeringCandidate.availability
+  ) ? offeringCandidate : null;
+
+  const menuItems = response.menuItems?.flatMap((item) => {
+    const nameTh = item.nameTh.trim();
+    const nameEn = cleanAIString(item.nameEn);
+    const availableName = nameTh || nameEn;
+    if (!availableName) return [];
+
+    const candidateId = cleanAIString(item.id);
+    const id = candidateId && z.string().uuid().safeParse(candidateId).success
+      ? candidateId
+      : null;
+
+    return [{
+      ...item,
+      id,
+      nameTh: nameTh || availableName,
+      nameEn,
+      descriptionTh: cleanAIString(item.descriptionTh),
+      descriptionEn: cleanAIString(item.descriptionEn),
+    }];
+  }) ?? null;
+
+  const workationCandidate = response.workation
+    ? { ...response.workation, policyText: cleanAIString(response.workation.policyText) }
+    : null;
+  const workation = workationCandidate
+    && Object.values(workationCandidate).some((item) => item !== null)
+    ? workationCandidate
+    : null;
+
+  return {
+    ...response,
+    offering,
+    menuItems,
+    menuNote: cleanAIString(response.menuNote),
+    openingNote: cleanAIString(response.openingNote),
+    workation,
+    fieldEvidence: response.fieldEvidence
+      .map((evidence) => ({
+        ...evidence,
+        field: evidence.field.trim(),
+        sourceText: evidence.sourceText.trim(),
+      }))
+      .filter((evidence) => evidence.field && evidence.sourceText),
+    unresolvedFields: response.unresolvedFields
+      .map((field) => field.trim())
+      .filter(Boolean),
+  };
+}
+
 function omitNullProperties(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(omitNullProperties);
   if (!value || typeof value !== "object") return value;
@@ -172,7 +276,8 @@ function omitNullProperties(value: unknown): unknown {
 
 export function normalizeMerchantAIResponse(value: unknown) {
   const response = merchantAIResponseSchema.parse(value);
-  return merchantAIUpdateSchema.parse(omitNullProperties(response));
+  const prepared = prepareMerchantAIResponseForDomain(response);
+  return merchantAIUpdateSchema.parse(omitNullProperties(prepared));
 }
 
 export const structuredMerchantUpdateSchema = merchantAIUpdateSchema.extend({

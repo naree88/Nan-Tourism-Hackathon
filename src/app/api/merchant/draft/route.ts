@@ -21,6 +21,13 @@ function updateKind(kinds: string[]) {
   return "general";
 }
 
+function safeZodIssueSummary(error: z.ZodError) {
+  return error.issues.map((issue) => ({
+    code: issue.code,
+    path: issue.path.join("."),
+  }));
+}
+
 export async function POST(request: Request) {
   try {
     const demo = isDemoMode();
@@ -31,7 +38,26 @@ export async function POST(request: Request) {
       }
     }
 
-    const body = merchantDraftRequestSchema.parse(await request.json());
+    let requestBody: unknown;
+    try {
+      requestBody = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "ข้อมูลอัปเดตหรือรูปถ่ายไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
+    const parsedBody = merchantDraftRequestSchema.safeParse(requestBody);
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        {
+          message: "ข้อมูลอัปเดตหรือรูปถ่ายไม่ถูกต้อง",
+          issues: parsedBody.error.issues,
+        },
+        { status: 400 },
+      );
+    }
+    const body = parsedBody.data;
     const supabase = demo ? null : await createSupabaseServerClient();
     if (!demo && !supabase) {
       return NextResponse.json({ message: "ระบบ Supabase ยังตั้งค่าไม่ครบ" }, { status: 503 });
@@ -76,27 +102,44 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "ระบบบันทึกร่างยังไม่ได้ตั้งค่า SUPABASE_SECRET_KEY" }, { status: 503 });
     }
 
-    const draft = await generateMerchantDraft({
-      currentProfile,
-      rawInput: body.rawInput,
-      inputMethod: body.inputMethod,
-      ...(body.image
-        ? {
-            image: {
-              name: body.image.name,
-              mediaType: body.image.mediaType,
-              sizeBytes: body.image.sizeBytes,
-              dataUrl: body.image.dataUrl,
-            },
-          }
-        : {}),
-      context: {
-        cafeId: body.cafeId,
-        ownerProfileId,
-        draftId: randomUUID(),
-        createdAt: new Date().toISOString(),
-      },
-    });
+    let draft;
+    try {
+      draft = await generateMerchantDraft({
+        currentProfile,
+        rawInput: body.rawInput,
+        inputMethod: body.inputMethod,
+        ...(body.image
+          ? {
+              image: {
+                name: body.image.name,
+                mediaType: body.image.mediaType,
+                sizeBytes: body.image.sizeBytes,
+                dataUrl: body.image.dataUrl,
+              },
+            }
+          : {}),
+        context: {
+          cafeId: body.cafeId,
+          ownerProfileId,
+          draftId: randomUUID(),
+          createdAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.warn("[merchant-draft] OpenAI output validation failed", {
+          issues: safeZodIssueSummary(error),
+        });
+        return NextResponse.json(
+          {
+            message: "ระบบ AI อ่านข้อมูลแล้ว แต่ยังจัดโครงสร้างร่างไม่สำเร็จ กรุณาลองอีกครั้งค่ะ",
+            code: "AI_PROVIDER_RESPONSE_INVALID",
+          },
+          { status: 502 },
+        );
+      }
+      throw error;
+    }
 
     if (admin) {
       const { error } = await admin.from("content_drafts").insert({
@@ -130,9 +173,12 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error("[merchant-draft] Internal schema validation failed", {
+        issues: safeZodIssueSummary(error),
+      });
       return NextResponse.json(
-        { message: "ข้อมูลอัปเดตหรือรูปถ่ายไม่ถูกต้อง", issues: error.issues },
-        { status: 400 },
+        { message: "ระบบตรวจสอบข้อมูลภายในไม่สำเร็จ กรุณาลองอีกครั้งค่ะ" },
+        { status: 503 },
       );
     }
     const providerError = await classifyMerchantDraftProviderError(error);

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { APICallError } from "ai";
+import { z } from "zod";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/config", () => ({ isDemoMode: () => true }));
@@ -75,5 +76,28 @@ describe("POST /api/merchant/draft provider errors", () => {
     });
     expect(JSON.stringify(payload)).not.toContain(providerSecret);
     expect(JSON.stringify(payload)).not.toContain("provider_permission_detail");
+  });
+
+  it("distinguishes an invalid OpenAI response from invalid merchant input", async () => {
+    const invalidOutput = z.object({ beanName: z.string().trim().min(1) }).safeParse({
+      beanName: "",
+    });
+    if (invalidOutput.success) throw new Error("Expected the output fixture to be invalid");
+    vi.mocked(generateMerchantDraft).mockRejectedValueOnce(invalidOutput.error);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    const response = await postDraft();
+    const payload = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(payload).toEqual({
+      message: "ระบบ AI อ่านข้อมูลแล้ว แต่ยังจัดโครงสร้างร่างไม่สำเร็จ กรุณาลองอีกครั้งค่ะ",
+      code: "AI_PROVIDER_RESPONSE_INVALID",
+    });
+    expect(warn).toHaveBeenCalledWith(
+      "[merchant-draft] OpenAI output validation failed",
+      { issues: [{ code: "too_small", path: "beanName" }] },
+    );
+    warn.mockRestore();
   });
 });
